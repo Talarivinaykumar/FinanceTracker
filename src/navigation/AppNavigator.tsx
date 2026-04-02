@@ -1,12 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { Home, List, PieChart, Target } from 'lucide-react-native';
+import { Home, List, PieChart, Target, Settings } from 'lucide-react-native';
 
 import { HomeScreen } from '../screens/HomeScreen';
 import { TransactionsScreen } from '../screens/TransactionsScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
 import { GoalsScreen } from '../screens/GoalsScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import { useTheme } from '../theme/colors';
 
 export type RootTabParamList = {
@@ -14,6 +15,7 @@ export type RootTabParamList = {
   Transactions: undefined;
   Insights: undefined;
   Goals: undefined;
+  Settings: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -30,6 +32,7 @@ export const AppNavigator = () => {
             if (route.name === 'Transactions') return <List color={color} size={size} />;
             if (route.name === 'Insights') return <PieChart color={color} size={size} />;
             if (route.name === 'Goals') return <Target color={color} size={size} />;
+            if (route.name === 'Settings') return <Settings color={color} size={size} />;
           },
           tabBarActiveTintColor: theme.primary,
           tabBarInactiveTintColor: theme.textTertiary,
@@ -56,9 +59,10 @@ export const AppNavigator = () => {
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Transactions" component={TransactionsScreen} />
+        <Tab.Screen name="Transactions" component={TransactionsScreen} options={{ title: 'List' }} />
         <Tab.Screen name="Insights" component={InsightsScreen} />
         <Tab.Screen name="Goals" component={GoalsScreen} />
+        <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -6,6 +6,8 @@ import { ActivityIndicator, View, Text, StatusBar } from 'react-native';
 
 import { store, persistor } from './src/store/store';
 import { AppNavigator } from './src/navigation/AppNavigator';
+import { AuthScreen } from './src/screens/AuthScreen';
+import { useAppSelector } from './src/store/hooks';
 
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { useTheme } from './src/theme/colors';
@@ -20,6 +22,25 @@ const Loading = () => {
   );
 };
 
+const AuthGate = () => {
+  const isBiometricsEnabled = useAppSelector(state => state.finance.isBiometricsEnabled);
+  const [isAuthenticated, setIsAuthenticated] = useState(!isBiometricsEnabled);
+
+  React.useEffect(() => {
+    if (!isBiometricsEnabled) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [isBiometricsEnabled]);
+
+  if (isBiometricsEnabled && !isAuthenticated) {
+    return <AuthScreen onUnlock={() => setIsAuthenticated(true)} />;
+  }
+
+  return <AppNavigator />;
+};
+
 function App(): React.JSX.Element {
   const theme = useTheme();
   return (
@@ -28,7 +49,7 @@ function App(): React.JSX.Element {
         <PersistGate loading={<Loading />} persistor={persistor}>
           <SafeAreaProvider>
             <StatusBar barStyle={theme.statusBar} backgroundColor={theme.background} />
-            <AppNavigator />
+            <AuthGate />
           </SafeAreaProvider>
         </PersistGate>
       </Provider>

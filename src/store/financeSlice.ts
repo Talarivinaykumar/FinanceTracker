@@ -50,6 +50,7 @@ export interface FinanceState {
   categories: Category[];
   goals: Goal[];
   monthlyBudget: number;
+  isBiometricsEnabled: boolean;
 }
 
 const initialState: FinanceState = {
@@ -64,6 +65,7 @@ const initialState: FinanceState = {
     }
   ],
   monthlyBudget: 2000,
+  isBiometricsEnabled: false,
 };
 
 export const financeSlice = createSlice({
@@ -112,9 +114,12 @@ export const financeSlice = createSlice({
     setMonthlyBudget: (state, action: PayloadAction<number>) => {
       state.monthlyBudget = action.payload;
     },
+    setBiometricsEnabled: (state, action: PayloadAction<boolean>) => {
+      state.isBiometricsEnabled = action.payload;
+    },
   },
 });
 
-export const { addTransaction, deleteTransaction, updateTransaction, addCategory, addGoal, updateGoal, setMonthlyBudget } = financeSlice.actions;
+export const { addTransaction, deleteTransaction, updateTransaction, addCategory, addGoal, updateGoal, setMonthlyBudget, setBiometricsEnabled } = financeSlice.actions;
 
 export default financeSlice.reducer;
