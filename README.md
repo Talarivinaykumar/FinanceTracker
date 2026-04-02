@@ -1,97 +1,92 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Personal Finance Companion Mobile App
 
-# Getting Started
+A clean, modern, and lightweight mobile application designed to help users track their daily transactions, understand their spending habits, and manage simple financial goals.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Overview
 
-## Step 1: Start Metro
+This application is built using React Native and Redux Toolkit. It avoids unnecessary complexity (not a full banking app) and focuses heavily on UI/UX with a clean, smooth, and highly responsive user experience. 
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+It tracks all your finances locally on-device, meaning no internet connection is required for day-to-day transaction recording.
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### Key Features
+1. **Home Dashboard:**
+   - Displays real-time Current Balance, Total Income, and Total Expense with a clean aesthetic.
+   - Summarizes your most recent transactions instantly.
+2. **Transaction Management:**
+   - Add Income and Expenses effortlessly via a bottom-sheet styled modal.
+   - Create custom categories with custom emojis straight from the Add Transaction screen!.
+   - Scrollable, neat flat list reviewing all historical transactions.
+3. **Insights Screen:**
+   - Features a dynamic **Pie Chart** separating your expenses by categories.
+   - Highlights your highest spending category immediately.
+4. **Savings Goals:**
+   - Ability to declare a Savings Goal and a target amount.
+   - Beautiful custom progress bars track your completion towards your target.
 
-```sh
-# Using npm
-npm start
+## Tech Stack
+- **Framework:** React Native
+- **State Management:** Redux Toolkit (`@reduxjs/toolkit` and `react-redux`)
+- **Persistence:** `@react-native-async-storage/async-storage` wrapped with `redux-persist` to maintain data across reboots.
+- **Navigation:** `@react-navigation/native` and `@react-navigation/bottom-tabs`
+- **Charts:** `react-native-chart-kit` and `react-native-svg`
+- **Icons:** `lucide-react-native`
 
-# OR using Yarn
-yarn start
+## Setup Steps
+
+### Prerequisites
+1. Node.js (>= 18 recommended)
+2. React Native CLI environment setup (Android Studio / Xcode)
+3. NPM or Yarn
+
+### Installation
+1. Navigate to the project directory:
+   ```bash
+   cd FinanceTracker/FTA
+   ```
+2. Install the exact dependencies required:
+   ```bash
+   npm install
+   ```
+3. *(iOS Only)* Install CocoaPods
+   ```bash
+   cd ios && pod install && cd ..
+   ```
+
+### Running the App
+- **Android:**
+  ```bash
+  npx react-native run-android
+  ```
+- **iOS:**
+  ```bash
+  npx react-native run-ios
+  ```
+
+## Assumptions
+- **Local Persistence Only:** The requirement explicitly pointed towards AsyncStorage, so the app assumes device-centric data usage. Syncing across devices is not implemented.
+- **Base Currency:** All currencies are formatted implicitly in USD ($) for simplicity. This can be localized easily if required via i18n libraries.
+- **React Native CLI over Expo:** The provided user directory `FTA` already featured a standard React Native CLI bundle, so execution targeted a non-Expo flow while respecting all logic and UI requirements requested. (Note: The packages chosen are 100% Expo-compatible if transferred to an Expo Managed module.)
+
+## Folder Structure
+
 ```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+FTA/
+├── src/
+│   ├── components/
+│   │   ├── AddTransactionModal.tsx  # Modal form for inputting transactions
+│   │   ├── ProgressBar.tsx          # Custom UI element for tracking goals
+│   │   └── TransactionCard.tsx      # A reusable card displaying an item
+│   ├── navigation/
+│   │   └── AppNavigator.tsx         # Bottom tab layout and routing
+│   ├── screens/
+│   │   ├── GoalsScreen.tsx          # Maps tracking components
+│   │   ├── HomeScreen.tsx           # Dashboard summaries
+│   │   ├── InsightsScreen.tsx       # Embedded PieChart
+│   │   └── TransactionsScreen.tsx   # Detailed feed of history
+│   └── store/
+│       ├── financeSlice.ts          # Redux slice governing financial rules
+│       ├── hooks.ts                 # Strongly-typed Redux accessors
+│       └── store.ts                 # Redux engine and persistence gateway
+├── App.tsx                          # Base providers and entry
+└── package.json
 ```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
