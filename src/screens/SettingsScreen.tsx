@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Switch, Alert } from 'react-native';
+import { View, Text, StyleSheet, Switch, Alert, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { setBiometricsEnabled } from '../store/financeSlice';
+import { setBiometricsEnabled, setDailyReminderEnabled } from '../store/financeSlice';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { Fingerprint, Shield, Info } from 'lucide-react-native';
+import { Fingerprint, Shield, Info, Bell } from 'lucide-react-native';
 import { useTheme, ThemeColors } from '../theme/colors';
+import NotificationService from '../services/NotificationService';
 
 export const SettingsScreen = () => {
   const insets = useSafeAreaInsets();
@@ -13,6 +14,7 @@ export const SettingsScreen = () => {
   const styles = React.useMemo(() => getStyles(theme), [theme]);
   const dispatch = useAppDispatch();
   const isBiometricsEnabled = useAppSelector(state => state.finance.isBiometricsEnabled);
+  const dailyReminderEnabled = useAppSelector(state => state.finance.dailyReminderEnabled);
 
   const [sensorAvailable, setSensorAvailable] = useState<boolean | null>(null);
 
@@ -51,6 +53,21 @@ export const SettingsScreen = () => {
     }
   };
 
+  const toggleReminder = async (value: boolean) => {
+    if (value) {
+      try {
+        await NotificationService.scheduleDailyReminder();
+        dispatch(setDailyReminderEnabled(true));
+        Alert.alert('Reminder Set 🔔', 'You will be gently reminded every evening to log your expenses!');
+      } catch (e) {
+        Alert.alert('Permission Denied', 'Please enable notifications in your phone settings.');
+      }
+    } else {
+      await NotificationService.cancelAllReminders();
+      dispatch(setDailyReminderEnabled(false));
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerBg}>
@@ -58,7 +75,28 @@ export const SettingsScreen = () => {
         <Text style={styles.headerTitle}>Settings ⚙️</Text>
       </View>
 
-      <View style={styles.settingsContainer}>
+      <ScrollView contentContainerStyle={styles.settingsContainer}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notifications</Text>
+          <View style={styles.settingCard}>
+            <View style={styles.settingRow}>
+              <View style={styles.iconWrapper}>
+                <Bell color={theme.gold} size={24} />
+              </View>
+              <View style={styles.settingTextContainer}>
+                <Text style={styles.settingTitle}>Daily Reminders</Text>
+                <Text style={styles.settingDesc}>Get a friendly push notification at 8:00 PM to record your day's spending.</Text>
+              </View>
+              <Switch
+                trackColor={{ false: theme.border, true: theme.success }}
+                thumbColor="#FFFFFF"
+                onValueChange={toggleReminder}
+                value={dailyReminderEnabled}
+              />
+            </View>
+          </View>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Security</Text>
           <View style={styles.settingCard}>
@@ -101,7 +139,7 @@ export const SettingsScreen = () => {
             </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -115,7 +153,7 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
   headerSub: { color: theme.textTertiary, fontSize: 14, fontWeight: '500', marginBottom: 4 },
   headerTitle: { color: theme.text, fontSize: 26, fontWeight: '800', fontFamily: 'serif' },
 
-  settingsContainer: { paddingHorizontal: 20, paddingTop: 10 },
+  settingsContainer: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 60 },
   section: { marginBottom: 30 },
   sectionTitle: { fontSize: 15, fontWeight: '700', color: theme.textSecondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: 1 },
   

@@ -1,22 +1,43 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Transaction, Category } from '../store/financeSlice';
 import { useTheme, ThemeColors } from '../theme/colors';
 
 interface Props {
   transaction: Transaction;
   category?: Category;
+  index?: number;
 }
 
-export const TransactionCard: React.FC<Props> = ({ transaction, category }) => {
+export const TransactionCard: React.FC<Props> = ({ transaction, category, index = 0 }) => {
   const theme = useTheme();
   const styles = React.useMemo(() => getStyles(theme), [theme]);
   const isIncome = transaction.type === 'income';
   const amountColor = isIncome ? theme.success : theme.text;
   const iconBgColor = isIncome ? theme.successBackground : theme.skeletonBackground;
 
+  const translateY = useRef(new Animated.Value(20)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 300,
+        delay: index * 50,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 350,
+        delay: index * 50,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [index, opacity, translateY]);
+
   return (
-    <View style={styles.card}>
+    <Animated.View style={[styles.card, { opacity, transform: [{ translateY }] }]}>
       <View style={[styles.iconWrapper, { backgroundColor: iconBgColor }]}>
         <Text style={styles.icon}>{category?.icon || '💳'}</Text>
       </View>
@@ -36,7 +57,7 @@ export const TransactionCard: React.FC<Props> = ({ transaction, category }) => {
           <Text style={styles.date}>{new Date(transaction.date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
         ) : null}
       </View>
-    </View>
+    </Animated.View>
   );
 };
 

@@ -27,6 +27,14 @@ export interface Goal {
   current: number;
 }
 
+export interface AppNotification {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: 'reminder' | 'success' | 'info';
+}
+
 export const defaultCategories: Category[] = [
   // Expenses
   { id: 'exp-food', name: 'Food', icon: '🍔', type: 'expense' },
@@ -51,6 +59,8 @@ export interface FinanceState {
   goals: Goal[];
   monthlyBudget: number;
   isBiometricsEnabled: boolean;
+  dailyReminderEnabled: boolean;
+  notifications: AppNotification[];
 }
 
 const initialState: FinanceState = {
@@ -66,6 +76,8 @@ const initialState: FinanceState = {
   ],
   monthlyBudget: 2000,
   isBiometricsEnabled: false,
+  dailyReminderEnabled: false,
+  notifications: [],
 };
 
 export const financeSlice = createSlice({
@@ -111,15 +123,34 @@ export const financeSlice = createSlice({
         goal.current += action.payload.amountToAdd;
       }
     },
+    deleteGoal: (state, action: PayloadAction<string>) => {
+      state.goals = state.goals.filter(g => g.id !== action.payload);
+    },
     setMonthlyBudget: (state, action: PayloadAction<number>) => {
       state.monthlyBudget = action.payload;
     },
     setBiometricsEnabled: (state, action: PayloadAction<boolean>) => {
       state.isBiometricsEnabled = action.payload;
     },
+    setDailyReminderEnabled: (state, action: PayloadAction<boolean>) => {
+      state.dailyReminderEnabled = action.payload;
+    },
+    addNotification: (state, action: PayloadAction<Omit<AppNotification, 'id' | 'time'>>) => {
+      state.notifications.unshift({
+        ...action.payload,
+        id: uuidv4(),
+        time: new Date().toISOString(),
+      });
+    },
+    removeNotification: (state, action: PayloadAction<string>) => {
+      state.notifications = state.notifications.filter(n => n.id !== action.payload);
+    },
+    clearNotifications: (state) => {
+      state.notifications = [];
+    },
   },
 });
 
-export const { addTransaction, deleteTransaction, updateTransaction, addCategory, addGoal, updateGoal, setMonthlyBudget, setBiometricsEnabled } = financeSlice.actions;
+export const { addTransaction, deleteTransaction, updateTransaction, addCategory, addGoal, updateGoal, deleteGoal, setMonthlyBudget, setBiometricsEnabled, setDailyReminderEnabled, addNotification, removeNotification, clearNotifications } = financeSlice.actions;
 
 export default financeSlice.reducer;

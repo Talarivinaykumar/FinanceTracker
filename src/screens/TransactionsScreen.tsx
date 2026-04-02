@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, RefreshControl, LayoutAnimation } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from '../store/hooks';
 import { TransactionCard } from '../components/TransactionCard';
@@ -42,6 +42,10 @@ export const TransactionsScreen = () => {
     
     return catName.includes(queryLower) || notesLower.includes(queryLower);
   });
+
+  React.useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [filteredTransactions]);
 
   const openAddModal = () => {
     setEditingTransaction(null);
@@ -92,11 +96,12 @@ export const TransactionsScreen = () => {
           keyExtractor={item => item.id}
           contentContainerStyle={{ paddingBottom: 100 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} colors={[theme.primary]} />}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <TouchableOpacity onPress={() => openEditModal(item)} activeOpacity={0.7} style={{ paddingHorizontal: 16 }}>
               <TransactionCard
                 transaction={item}
                 category={categories.find(c => c.id === item.categoryId)}
+                index={index}
               />
             </TouchableOpacity>
           )}

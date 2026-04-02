@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { addTransaction, updateTransaction, deleteTransaction, addCategory, TransactionType, Transaction } from '../store/financeSlice';
+import { addTransaction, updateTransaction, deleteTransaction, addCategory, addNotification, TransactionType, Transaction } from '../store/financeSlice';
 import { X, Check, Trash2 } from 'lucide-react-native';
 import { useTheme, ThemeColors } from '../theme/colors';
 
@@ -71,6 +71,14 @@ export const AddTransactionModal: React.FC<Props> = ({ visible, onClose, existin
         notes,
         date: new Date().toISOString(),
       }));
+      
+      if (type === 'expense' && Number(amount) >= 500) {
+        dispatch(addNotification({
+          title: 'High Expense Alert 🚨',
+          message: `You just logged a large expense of $${amount}.`,
+          type: 'info'
+        }));
+      }
     }
     resetAndClose();
   };

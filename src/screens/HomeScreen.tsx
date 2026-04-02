@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Dimensions, Animated as RNAnimated, RefreshControl,
+  Dimensions, Animated as RNAnimated, RefreshControl, LayoutAnimation, UIManager, Platform
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from '../store/hooks';
@@ -10,8 +10,14 @@ import { ProgressBar } from '../components/ProgressBar';
 import { SkeletonLoader } from '../components/SkeletonLoader';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import { PieChart } from 'react-native-chart-kit';
-import { ArrowUpRight, ArrowDownRight, Wallet, ChevronRight } from 'lucide-react-native';
+import { ArrowUpRight, ArrowDownRight, Wallet, ChevronRight, Bell } from 'lucide-react-native';
 import { useTheme, ThemeColors } from '../theme/colors';
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -25,10 +31,15 @@ export const HomeScreen = ({ navigation }: any) => {
   const theme = useTheme();
   const styles = React.useMemo(() => getStyles(theme), [theme]);
 
-  const { transactions, categories, goals } = useAppSelector(state => state.finance);
+  const { transactions, categories, goals, notifications } = useAppSelector(state => state.finance);
   const [isLoading, setIsLoading] = React.useState(true);
   const fadeAnim = React.useRef(new RNAnimated.Value(0)).current;
   const slideAnim = React.useRef(new RNAnimated.Value(30)).current;
+  const bellAnim = React.useRef(new RNAnimated.Value(0)).current;
+
+  React.useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [transactions, goals]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,9 +48,14 @@ export const HomeScreen = ({ navigation }: any) => {
         RNAnimated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
         RNAnimated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
       ]).start();
+      
+      RNAnimated.sequence([
+        RNAnimated.delay(800),
+        RNAnimated.spring(bellAnim, { toValue: 1, friction: 3, tension: 40, useNativeDriver: true })
+      ]).start();
     }, 800);
     return () => clearTimeout(timer);
-  }, [fadeAnim, slideAnim]);
+  }, [fadeAnim, slideAnim, bellAnim]);
 
   const [refreshing, setRefreshing] = React.useState(false);
   const [refreshCount, setRefreshCount] = React.useState(0);
@@ -105,6 +121,11 @@ export const HomeScreen = ({ navigation }: any) => {
     );
   }
 
+  const bellRotation = bellAnim.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: ['-15deg', '15deg', '0deg']
+  });
+
   return (
     <ScrollView
       style={styles.container}
@@ -117,6 +138,12 @@ export const HomeScreen = ({ navigation }: any) => {
             <Text style={styles.headerSub}>Hi there 👋</Text>
             <Text style={styles.headerTitle}>Wealth Overview</Text>
           </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.bellBtn}>
+            <RNAnimated.View style={{ transform: [{ rotate: bellRotation }, { scale: bellAnim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) }] }}>
+              <Bell color={theme.text} size={24} />
+              {notifications && notifications.length > 0 && <View style={styles.bellBadge} />}
+            </RNAnimated.View>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -264,6 +291,8 @@ const getStyles = (theme: ThemeColors) => StyleSheet.create({
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   headerSub: { color: theme.textTertiary, fontSize: 14, fontWeight: '500', marginBottom: 4 },
   headerTitle: { color: theme.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.5, fontFamily: 'serif' },
+  bellBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.card, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.border },
+  bellBadge: { position: 'absolute', top: 0, right: 3, width: 10, height: 10, borderRadius: 5, backgroundColor: theme.danger, borderWidth: 2, borderColor: theme.card },
   
   balanceCard: {
     backgroundColor: theme.card, marginHorizontal: 20, marginTop: 0,

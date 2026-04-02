@@ -1,0 +1,11 @@
+C:\vinay\projects\FinanceTracker\FTA\src\screens\AuthScreen.tsx - 'e' is defined but never used.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\AuthScreen.tsx - React Hook useEffect has a missing dependency: 'attemptUnlock'. Either include it or remove the dependency array.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\GoalsScreen.tsx - 'insets' is assigned a value but never used.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\HomeScreen.tsx - 'insets' is assigned a value but never used.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\HomeScreen.tsx - React Hook React.useEffect has a missing dependency: 'bellAnim'. Either include it or remove the dependency array.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\InsightsScreen.tsx - 'insets' is assigned a value but never used.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\InsightsScreen.tsx - 'opacity' is assigned a value but never used. Allowed unused args must match /^_/u.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\NotificationsScreen.tsx - React Hook useEffect has missing dependencies: 'fadeAnims' and 'slideAnims'. Either include them or remove the dependency array.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\SettingsScreen.tsx - 'insets' is assigned a value but never used.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\SettingsScreen.tsx - 'error' is defined but never used.
+C:\vinay\projects\FinanceTracker\FTA\src\screens\SettingsScreen.tsx - 'e' is defined but never used.

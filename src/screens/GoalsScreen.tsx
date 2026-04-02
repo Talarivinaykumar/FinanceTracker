@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, RefreshControl, LayoutAnimation, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
-import { addGoal, updateGoal, setMonthlyBudget } from '../store/financeSlice';
+import { addGoal, updateGoal, setMonthlyBudget, addNotification, deleteGoal } from '../store/financeSlice';
 import { ProgressBar } from '../components/ProgressBar';
 import { SkeletonLoader } from '../components/SkeletonLoader';
 import { Target, Plus, X, Edit3, AlertCircle } from 'lucide-react-native';
@@ -25,6 +25,10 @@ export const GoalsScreen = () => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
+
+  React.useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [goals]);
 
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(() => {
@@ -63,6 +67,11 @@ export const GoalsScreen = () => {
         target: Number(target),
         current: 0
       }));
+      dispatch(addNotification({
+        title: 'New Goal Created 🎯',
+        message: `You've set a new goal to save $${target} for ${title}!`,
+        type: 'success'
+      }));
       setGoalModalVisible(false);
       setTitle('');
       setTarget('');
@@ -92,6 +101,21 @@ export const GoalsScreen = () => {
       setSelectedGoalId(null);
       setFundsAmount('');
     }
+  };
+
+  const handleDeleteGoal = (id: string, name: string) => {
+    Alert.alert('Delete Goal', `Are you sure you want to delete the goal "${name}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => {
+          dispatch(deleteGoal(id));
+          dispatch(addNotification({
+            title: 'Goal Deleted',
+            message: `The goal "${name}" was removed.`,
+            type: 'info'
+          }));
+        } 
+      }
+    ]);
   };
 
   if (isLoading) {
@@ -178,6 +202,7 @@ export const GoalsScreen = () => {
                 style={[styles.goalCard, { borderLeftColor: goalColor }]}
                 activeOpacity={0.8}
                 onPress={() => openAddFunds(goal.id)}
+                onLongPress={() => handleDeleteGoal(goal.id, goal.title)}
               >
                 <View style={styles.goalRow}>
                   <Text style={styles.goalTitle}>{goal.title}</Text>
@@ -189,7 +214,7 @@ export const GoalsScreen = () => {
                 </View>
                 <Text style={styles.goalSub}>${goal.current.toLocaleString()} saved of ${goal.target.toLocaleString()}</Text>
                 <ProgressBar current={goal.current} target={goal.target} color={goalColor} height={10} />
-                <Text style={styles.tapHint}>Tap to add funds →</Text>
+                <Text style={styles.tapHint}>Tap to add funds • Long press to delete</Text>
               </TouchableOpacity>
               )
             })

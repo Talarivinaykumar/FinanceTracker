@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, LayoutAnimation, UIManager, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from '../store/hooks';
 import { PieChart, LineChart } from 'react-native-chart-kit';
 import { SkeletonLoader } from '../components/SkeletonLoader';
 import { TrendingUp, TrendingDown, Award, CalendarDays } from 'lucide-react-native';
 import { useTheme, ThemeColors } from '../theme/colors';
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -20,6 +26,10 @@ export const InsightsScreen = () => {
   const styles = React.useMemo(() => getStyles(theme), [theme]);
   const { transactions, categories } = useAppSelector(state => state.finance);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [transactions]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
