@@ -88,7 +88,7 @@ export const InsightsScreen = () => {
           <SkeletonLoader width={80} height={14} borderRadius={4} style={{ marginBottom: 8, backgroundColor: 'rgba(255,255,255,0.2)' }} />
           <SkeletonLoader width={180} height={26} borderRadius={6} style={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
         </View>
-        <View style={{ paddingHorizontal: 20, marginTop: -40 }}>
+        <View style={{ paddingHorizontal: 20, marginTop: 10 }}>
           <SkeletonLoader width="100%" height={100} borderRadius={22} style={{ marginBottom: 24 }} />
           <SkeletonLoader width="100%" height={200} borderRadius={22} style={{ marginBottom: 24 }} />
           <SkeletonLoader width="100%" height={180} borderRadius={22} />
@@ -109,13 +109,13 @@ export const InsightsScreen = () => {
       </View>
 
       {chartData.length === 0 ? (
-        <View style={[styles.emptyCard, { marginTop: -40 }]}>
+        <View style={[styles.emptyCard, { marginTop: 10 }]}>
           <Text style={styles.emptyEmoji}>📉</Text>
           <Text style={styles.emptyTitle}>No Insights Yet</Text>
           <Text style={styles.emptySub}>Add some expense transactions to see your analytics.</Text>
         </View>
       ) : (
-        <View style={{ marginTop: -40, paddingHorizontal: 20 }}>
+        <View style={{ marginTop: 10, paddingHorizontal: 20 }}>
 
           {/* Top Category Hero Card */}
           {highestExpense && (
@@ -222,49 +222,40 @@ export const InsightsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F1F5F9' },
+  container: { flex: 1, backgroundColor: '#faf9fa' },
   headerBg: {
-    backgroundColor: '#7C3AED',
+    backgroundColor: '#faf9fa',
     paddingTop: 56,
-    paddingBottom: 72,
+    paddingBottom: 24,
     paddingHorizontal: 24,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
   },
-  headerSub: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  headerTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
+  headerSub: { color: '#737784', fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  headerTitle: { color: '#1b1c1d', fontSize: 26, fontWeight: '800', letterSpacing: -0.5, fontFamily: 'serif' },
 
   emptyCard: {
     marginHorizontal: 20,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
     padding: 40,
     alignItems: 'center',
-    shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#e3e2e3',
   },
   emptyEmoji: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#0F172A', marginBottom: 6 },
-  emptySub: { fontSize: 13, color: '#94A3B8', textAlign: 'center' },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#1b1c1d', marginBottom: 6, fontFamily: 'serif' },
+  emptySub: { fontSize: 13, color: '#737784', textAlign: 'center' },
 
   topCatCard: {
-    backgroundColor: '#4F46E5',
-    borderRadius: 22,
+    backgroundColor: '#094cb2',
+    borderRadius: 8,
     padding: 24,
     marginBottom: 20,
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 8,
+    elevation: 0,
   },
   topCatRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   topCatEyebrow: { color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8 },
-  topCatName: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', marginBottom: 4 },
-  topCatAmount: { color: '#A5B4FC', fontSize: 18, fontWeight: '700' },
+  topCatName: { color: '#ffffff', fontSize: 26, fontWeight: '800', marginBottom: 4, fontFamily: 'serif' },
+  topCatAmount: { color: '#e7ebff', fontSize: 18, fontWeight: '700' },
   awardCircle: {
     width: 56, height: 56, borderRadius: 28,
     backgroundColor: 'rgba(255,255,255,0.15)',
@@ -275,42 +266,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between',
     alignItems: 'center', marginBottom: 12, marginTop: 8,
   },
-  sectionText: { fontSize: 16, fontWeight: '800', color: '#0F172A' },
+  sectionText: { fontSize: 16, fontWeight: '800', color: '#1b1c1d', fontFamily: 'serif' },
 
   weeklyCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 22, padding: 20,
+    backgroundColor: '#ffffff', borderRadius: 8, padding: 20,
     marginBottom: 20,
-    shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#e3e2e3',
   },
   weeklyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   weekBox: { flex: 1 },
-  weekDivider: { width: 1, height: 40, backgroundColor: '#E2E8F0', marginHorizontal: 20 },
-  weekLabel: { color: '#94A3B8', fontSize: 12, fontWeight: '600', marginBottom: 4 },
-  weekAmt: { color: '#0F172A', fontSize: 22, fontWeight: '800' },
+  weekDivider: { width: 1, height: 40, backgroundColor: '#e3e2e3', marginHorizontal: 20 },
+  weekLabel: { color: '#434653', fontSize: 12, fontWeight: '600', marginBottom: 4 },
+  weekAmt: { color: '#1b1c1d', fontSize: 22, fontWeight: '800', fontFamily: 'serif' },
   diffBadge: {
     flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'center', paddingVertical: 10, borderRadius: 12,
+    justifyContent: 'center', paddingVertical: 10, borderRadius: 4,
   },
   diffText: { fontWeight: '700', fontSize: 13, marginLeft: 6 },
 
   chartCard: {
-    backgroundColor: '#FFFFFF', borderRadius: 22, paddingVertical: 16,
+    backgroundColor: '#ffffff', borderRadius: 8, paddingVertical: 16,
     marginBottom: 20,
-    shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#e3e2e3',
     alignItems: 'center',
     overflow: 'hidden',
   },
   legendContainer: { width: '100%', paddingHorizontal: 20, paddingBottom: 8 },
   legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   legendDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
-  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: '#334155' },
-  legendAmt: { fontSize: 13, fontWeight: '700', color: '#4F46E5' },
+  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: '#434653' },
+  legendAmt: { fontSize: 13, fontWeight: '700', color: '#1b1c1d', fontFamily: 'serif' },
 });

@@ -8,7 +8,7 @@ interface Props {
   height?: number;
 }
 
-export const ProgressBar: React.FC<Props> = ({ current, target, color = '#2E7D32', height = 8 }) => {
+export const ProgressBar: React.FC<Props> = ({ current, target, color = '#6d5e00', height = 8 }) => {
   const percentage = Math.min(Math.max((current / target) * 100, 0), 100);
 
   return (
@@ -31,17 +31,17 @@ const styles = StyleSheet.create({
   },
   track: {
     width: '100%',
-    backgroundColor: '#E5E5EA',
-    borderRadius: 8,
+    backgroundColor: '#e3e2e3',
+    borderRadius: 4,
     overflow: 'hidden',
   },
   progress: {
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 4,
   },
   text: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#8E8E93',
+    color: '#434653',
   },
 });

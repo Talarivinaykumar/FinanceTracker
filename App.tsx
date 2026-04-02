@@ -10,9 +10,9 @@ import { AppNavigator } from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 
 const Loading = () => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' }}>
-    <ActivityIndicator size="large" color="#0EA5E9" />
-    <Text style={{ marginTop: 16, fontSize: 16, fontWeight: '600', color: '#64748B' }}>Loading FinanceTracker...</Text>
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#faf9fa' }}>
+    <ActivityIndicator size="large" color="#094cb2" />
+    <Text style={{ marginTop: 16, fontSize: 16, fontWeight: '600', color: '#1b1c1d', fontFamily: 'serif' }}>Loading FinanceTracker...</Text>
   </View>
 );
 

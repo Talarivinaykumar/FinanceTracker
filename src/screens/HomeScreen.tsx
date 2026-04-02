@@ -111,12 +111,12 @@ export const HomeScreen = ({ navigation }: any) => {
       <View style={styles.headerBg}>
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.headerSub}>Good day 👋</Text>
-            <Text style={styles.headerTitle}>Your Portfolio</Text>
+            <Text style={styles.headerSub}>Hi there 👋</Text>
+            <Text style={styles.headerTitle}>Wealth Overview</Text>
           </View>
-          <View style={styles.avatarWrap}>
+          {/* <View style={styles.avatarWrap}>
             <Text style={styles.avatarText}>VK</Text>
-          </View>
+          </View> */}
         </View>
       </View>
 
@@ -263,119 +263,108 @@ export const HomeScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F1F5F9' },
+  container: { flex: 1, backgroundColor: '#faf9fa' },
 
-  // Colored top header banner
+  // Clean top header banner
   headerBg: {
-    backgroundColor: '#4F46E5',
     paddingTop: 56,
-    paddingBottom: 72,
+    paddingBottom: 24,
     paddingHorizontal: 24,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
   },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  headerTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
+  headerSub: { color: '#737784', fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  headerTitle: { color: '#1b1c1d', fontSize: 26, fontWeight: '800', letterSpacing: -0.5, fontFamily: 'serif' },
   avatarWrap: {
     width: 46, height: 46, borderRadius: 23,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#e3e2e3',
     justifyContent: 'center', alignItems: 'center',
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)',
+    borderWidth: 1, borderColor: '#c3c6d5',
   },
-  avatarText: { color: '#FFFFFF', fontWeight: '800', fontSize: 15 },
+  avatarText: { color: '#1b1c1d', fontWeight: '800', fontSize: 15 },
 
-  // Floating balance card overlapping the header
+  // Balance card tonal shift
   balanceCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffff',
     marginHorizontal: 20,
-    marginTop: -52,
-    borderRadius: 28,
+    marginTop: 0,
+    borderRadius: 12,
     padding: 24,
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 10,
+    borderWidth: 1,
+    borderColor: '#e3e2e3',
   },
-  balanceLabel: { color: '#94A3B8', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 },
+  balanceLabel: { color: '#434653', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 },
   balanceAmount: {
-    color: '#0F172A', fontSize: 38, fontWeight: '900',
-    marginTop: 4, marginBottom: 20, letterSpacing: -1,
+    color: '#1b1c1d', fontSize: 38, fontWeight: '900',
+    marginTop: 4, marginBottom: 20, letterSpacing: -1, fontFamily: 'serif',
   },
   statsRow: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#F8FAFC', borderRadius: 18, padding: 14,
+    backgroundColor: '#faf9fa', borderRadius: 8, padding: 14,
+    borderWidth: 1, borderColor: '#e3e2e3',
   },
   statChip: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  statChipDivider: { width: 1, height: 36, backgroundColor: '#E2E8F0' },
+  statChipDivider: { width: 1, height: 36, backgroundColor: '#e3e2e3' },
   statChipIconGreen: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: 'rgba(16,185,129,0.12)',
+    width: 32, height: 32, borderRadius: 8,
+    backgroundColor: 'rgba(9, 76, 178, 0.08)',
     justifyContent: 'center', alignItems: 'center',
   },
   statChipIconRed: {
-    width: 32, height: 32, borderRadius: 16,
-    backgroundColor: 'rgba(244,63,94,0.12)',
+    width: 32, height: 32, borderRadius: 8,
+    backgroundColor: '#f5f3f4',
     justifyContent: 'center', alignItems: 'center',
     marginLeft: 12,
   },
-  statChipLabel: { color: '#94A3B8', fontSize: 11, fontWeight: '600' },
-  statChipValue: { color: '#0F172A', fontSize: 15, fontWeight: '800', marginTop: 1 },
+  statChipLabel: { color: '#434653', fontSize: 11, fontWeight: '600' },
+  statChipValue: { color: '#1b1c1d', fontSize: 15, fontWeight: '800', marginTop: 1, fontFamily: 'serif' },
 
   section: { marginTop: 28, paddingHorizontal: 20 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-  sectionTitle: { fontSize: 17, fontWeight: '800', color: '#0F172A' },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: '#1b1c1d', fontFamily: 'serif' },
   seeAllBtn: { flexDirection: 'row', alignItems: 'center' },
-  seeAll: { fontSize: 13, fontWeight: '600', color: '#6366F1', marginRight: 2 },
+  seeAll: { fontSize: 13, fontWeight: '600', color: '#094cb2', marginRight: 2 },
 
-  // Goal card with left indigo border accent
+  // Goal card 
   goalCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
     padding: 20,
     borderLeftWidth: 4,
-    borderLeftColor: '#6366F1',
-    shadowColor: '#6366F1',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    borderLeftColor: '#6d5e00',
+    borderWidth: 1,
+    borderColor: '#e3e2e3',
   },
   goalTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  goalName: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 4 },
-  goalSub: { fontSize: 12, color: '#64748B', fontWeight: '500' },
+  goalName: { fontSize: 16, fontWeight: '700', color: '#1b1c1d', marginBottom: 4, fontFamily: 'serif' },
+  goalSub: { fontSize: 12, color: '#434653', fontWeight: '500' },
   goalBadge: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#f9e37a',
     paddingHorizontal: 12, paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 4,
   },
-  goalBadgeText: { fontSize: 13, fontWeight: '800', color: '#6366F1' },
+  goalBadgeText: { fontSize: 13, fontWeight: '800', color: '#6d5e00' },
 
   // Chart card
   chartCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
     paddingTop: 16,
-    shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#e3e2e3',
     alignItems: 'center',
   },
   chartLegend: { width: '100%', paddingHorizontal: 20, paddingBottom: 16 },
   legendRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   legendDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
-  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: '#334155' },
-  legendAmt: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: '#434653' },
+  legendAmt: { fontSize: 13, fontWeight: '700', color: '#1b1c1d', fontFamily: 'serif' },
 
   txList: {},
   emptyState: {
     alignItems: 'center', paddingVertical: 40,
-    backgroundColor: '#FFFFFF', borderRadius: 22,
-    borderWidth: 1.5, borderColor: '#E2E8F0', borderStyle: 'dashed',
+    backgroundColor: '#ffffff', borderRadius: 8,
+    borderWidth: 1.5, borderColor: '#e3e2e3', borderStyle: 'dashed',
   },
-  emptyTitle: { color: '#334155', fontSize: 15, fontWeight: '700', marginTop: 12 },
-  emptySub: { color: '#94A3B8', fontSize: 13, marginTop: 4 },
+  emptyTitle: { color: '#1b1c1d', fontSize: 15, fontWeight: '700', marginTop: 12, fontFamily: 'serif' },
+  emptySub: { color: '#737784', fontSize: 13, marginTop: 4 },
 });
