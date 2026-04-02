@@ -49,6 +49,7 @@ export interface FinanceState {
   transactions: Transaction[];
   categories: Category[];
   goals: Goal[];
+  monthlyBudget: number;
 }
 
 const initialState: FinanceState = {
@@ -62,6 +63,7 @@ const initialState: FinanceState = {
       current: 1000,
     }
   ],
+  monthlyBudget: 2000,
 };
 
 export const financeSlice = createSlice({
@@ -79,6 +81,14 @@ export const financeSlice = createSlice({
     },
     deleteTransaction: (state, action: PayloadAction<string>) => {
       state.transactions = state.transactions.filter(t => t.id !== action.payload);
+    },
+    updateTransaction: (state, action: PayloadAction<Transaction>) => {
+      const index = state.transactions.findIndex(t => t.id === action.payload.id);
+      if (index !== -1) {
+        state.transactions[index] = action.payload;
+        // Re-sort after updating
+        state.transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      }
     },
     addCategory: (state, action: PayloadAction<Omit<Category, 'id'>>) => {
       const newCategory: Category = {
@@ -99,9 +109,12 @@ export const financeSlice = createSlice({
         goal.current += action.payload.amountToAdd;
       }
     },
+    setMonthlyBudget: (state, action: PayloadAction<number>) => {
+      state.monthlyBudget = action.payload;
+    },
   },
 });
 
-export const { addTransaction, deleteTransaction, addCategory, addGoal, updateGoal } = financeSlice.actions;
+export const { addTransaction, deleteTransaction, updateTransaction, addCategory, addGoal, updateGoal, setMonthlyBudget } = financeSlice.actions;
 
 export default financeSlice.reducer;

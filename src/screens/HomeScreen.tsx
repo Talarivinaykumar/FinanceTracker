@@ -1,181 +1,381 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity,
+  Dimensions, Animated as RNAnimated, RefreshControl,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppSelector } from '../store/hooks';
 import { TransactionCard } from '../components/TransactionCard';
-import { ArrowUpRight, ArrowDownRight, Wallet } from 'lucide-react-native';
+import { ProgressBar } from '../components/ProgressBar';
+import { SkeletonLoader } from '../components/SkeletonLoader';
+import { AnimatedNumber } from '../components/AnimatedNumber';
+import { PieChart } from 'react-native-chart-kit';
+import { ArrowUpRight, ArrowDownRight, Wallet, ChevronRight, TrendingUp } from 'lucide-react-native';
+
+const screenWidth = Dimensions.get('window').width;
+
+const getChartColor = (index: number) => {
+  const colors = ['#6366F1', '#F43F5E', '#F59E0B', '#10B981', '#0EA5E9', '#8B5CF6'];
+  return colors[index % colors.length];
+};
 
 export const HomeScreen = ({ navigation }: any) => {
   const insets = useSafeAreaInsets();
-  const { transactions, categories } = useAppSelector(state => state.finance);
+  const { transactions, categories, goals } = useAppSelector(state => state.finance);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const fadeAnim = React.useRef(new RNAnimated.Value(0)).current;
+  const slideAnim = React.useRef(new RNAnimated.Value(30)).current;
 
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      RNAnimated.parallel([
+        RNAnimated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+        RNAnimated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+      ]).start();
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [fadeAnim, slideAnim]);
 
-  const totalExpense = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshCount, setRefreshCount] = React.useState(0);
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fadeAnim.setValue(0);
+    slideAnim.setValue(30);
+    setTimeout(() => {
+      setRefreshing(false);
+      setRefreshCount(prev => prev + 1);
+      RNAnimated.parallel([
+        RNAnimated.timing(fadeAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+        RNAnimated.timing(slideAnim, { toValue: 0, duration: 700, useNativeDriver: true }),
+      ]).start();
+    }, 800);
+  }, [fadeAnim, slideAnim]);
+
+  const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const balance = totalIncome - totalExpense;
+  const recentTransactions = transactions.slice(0, 4);
+  const topGoal = goals.length > 0 ? goals[0] : null;
 
-  const recentTransactions = transactions.slice(0, 3);
+  const expenseTransactions = transactions.filter(t => t.type === 'expense');
+  const categoryTotals: { [key: string]: number } = {};
+  expenseTransactions.forEach(t => {
+    categoryTotals[t.categoryId] = (categoryTotals[t.categoryId] || 0) + t.amount;
+  });
+  const chartData = Object.keys(categoryTotals).map((catId, index) => {
+    const cat = categories.find(c => c.id === catId);
+    return {
+      name: cat?.name || 'Other',
+      amount: categoryTotals[catId],
+      color: getChartColor(index),
+      legendFontColor: '#64748B',
+      legendFontSize: 12,
+    };
+  }).sort((a, b) => b.amount - a.amount);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.headerBg}>
+          <SkeletonLoader width={100} height={14} borderRadius={4} style={{ marginBottom: 6, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+          <SkeletonLoader width={180} height={26} borderRadius={6} style={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+        </View>
+        <View style={styles.balanceCard}>
+          <SkeletonLoader width={130} height={13} borderRadius={4} style={{ marginBottom: 10 }} />
+          <SkeletonLoader width={210} height={42} borderRadius={8} style={{ marginBottom: 28 }} />
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <SkeletonLoader width={(screenWidth - 100) / 2} height={64} borderRadius={16} />
+            <SkeletonLoader width={(screenWidth - 100) / 2} height={64} borderRadius={16} />
+          </View>
+        </View>
+        <View style={{ paddingHorizontal: 20, marginTop: 28 }}>
+          <SkeletonLoader width={140} height={18} borderRadius={6} style={{ marginBottom: 14 }} />
+          <SkeletonLoader width="100%" height={90} borderRadius={20} style={{ marginBottom: 28 }} />
+          <SkeletonLoader width={160} height={18} borderRadius={6} style={{ marginBottom: 14 }} />
+          <SkeletonLoader width="100%" height={160} borderRadius={20} />
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.greeting}>Hello there,</Text>
-        <Text style={styles.subtitle}>Here's your financial summary.</Text>
-      </View>
-
-      <View style={styles.balanceCard}>
-        <Text style={styles.balanceLabel}>Total Balance</Text>
-        <Text style={styles.balanceAmount}>${balance.toFixed(2)}</Text>
-
-        <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
-            <View style={[styles.iconCircle, { backgroundColor: 'rgba(46, 125, 50, 0.1)' }]}>
-              <ArrowUpRight color="#2E7D32" size={20} />
-            </View>
-            <View>
-              <Text style={styles.statLabel}>Income</Text>
-              <Text style={styles.statAmount}>${totalIncome.toFixed(2)}</Text>
-            </View>
+    <ScrollView
+      style={styles.container}
+      showsVerticalScrollIndicator={false}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" colors={['#6366F1']} />}
+    >
+      {/* Colored Header Banner */}
+      <View style={styles.headerBg}>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.headerSub}>Good day 👋</Text>
+            <Text style={styles.headerTitle}>Your Portfolio</Text>
           </View>
-          <View style={styles.statBox}>
-            <View style={[styles.iconCircle, { backgroundColor: 'rgba(211, 47, 47, 0.1)' }]}>
-              <ArrowDownRight color="#D32F2F" size={20} />
-            </View>
-            <View>
-              <Text style={styles.statLabel}>Expense</Text>
-              <Text style={styles.statAmount}>${totalExpense.toFixed(2)}</Text>
-            </View>
+          <View style={styles.avatarWrap}>
+            <Text style={styles.avatarText}>VK</Text>
           </View>
         </View>
       </View>
 
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Recent Transactions</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
-          <Text style={styles.seeAll}>See All</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Floating Balance Card */}
+      <RNAnimated.View style={[styles.balanceCard, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+        <Text style={styles.balanceLabel}>NET BALANCE</Text>
+        <AnimatedNumber
+          value={balance}
+          formatter={val => `$${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          style={styles.balanceAmount}
+          duration={1200}
+          trigger={refreshCount}
+        />
+        <View style={styles.statsRow}>
+          <View style={styles.statChip}>
+            <View style={styles.statChipIconGreen}>
+              <ArrowUpRight color="#10B981" size={16} />
+            </View>
+            <View>
+              <Text style={styles.statChipLabel}>Income</Text>
+              <AnimatedNumber
+                value={totalIncome}
+                formatter={val => `$${val.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+                style={styles.statChipValue}
+                duration={900}
+                trigger={refreshCount}
+              />
+            </View>
+          </View>
 
-      {recentTransactions.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Wallet color="#C7C7CC" size={48} />
-          <Text style={styles.emptyText}>No transactions yet.</Text>
+          <View style={styles.statChipDivider} />
+
+          <View style={styles.statChip}>
+            <View style={styles.statChipIconRed}>
+              <ArrowDownRight color="#F43F5E" size={16} />
+            </View>
+            <View>
+              <Text style={styles.statChipLabel}>Expenses</Text>
+              <AnimatedNumber
+                value={totalExpense}
+                formatter={val => `$${val.toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+                style={{ color: '#F43F5E', fontSize: 15, fontWeight: '800', marginTop: 1 }}
+                duration={900}
+                trigger={refreshCount}
+              />
+            </View>
+          </View>
         </View>
-      ) : (
-        recentTransactions.map(t => (
-          <TransactionCard
-            key={t.id}
-            transaction={t}
-            category={categories.find(c => c.id === t.categoryId)}
-          />
-        ))
+      </RNAnimated.View>
+
+      {/* Savings Goal */}
+      {topGoal && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>🎯 Savings Target</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Goals')} style={styles.seeAllBtn}>
+              <Text style={styles.seeAll}>Details</Text>
+              <ChevronRight color="#6366F1" size={15} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.goalCard} onPress={() => navigation.navigate('Goals')} activeOpacity={0.85}>
+            <View style={styles.goalTopRow}>
+              <View>
+                <Text style={styles.goalName}>{topGoal.title}</Text>
+                <Text style={styles.goalSub}>${topGoal.current.toLocaleString()} saved of ${topGoal.target.toLocaleString()}</Text>
+              </View>
+              <View style={styles.goalBadge}>
+                <Text style={styles.goalBadgeText}>{Math.round((topGoal.current / topGoal.target) * 100)}%</Text>
+              </View>
+            </View>
+            <ProgressBar current={topGoal.current} target={topGoal.target} color="#6366F1" height={10} />
+          </TouchableOpacity>
+        </View>
       )}
-      
-      <View style={{ height: 100 }} />
+
+      {/* Spending Analytics */}
+      {chartData.length > 0 && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>📊 Spending Analytics</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Insights')} style={styles.seeAllBtn}>
+              <Text style={styles.seeAll}>Report</Text>
+              <ChevronRight color="#6366F1" size={15} />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.chartCard}>
+            <PieChart
+              data={chartData}
+              width={screenWidth - 56}
+              height={180}
+              chartConfig={{ color: (opacity = 1) => `rgba(0,0,0,${opacity})` }}
+              accessor="amount"
+              backgroundColor="transparent"
+              paddingLeft="15"
+              hasLegend={false}
+              center={[30, 0]}
+              absolute
+            />
+            <View style={styles.chartLegend}>
+              {chartData.slice(0, 4).map((item, i) => (
+                <View key={i} style={styles.legendRow}>
+                  <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                  <Text style={styles.legendName} numberOfLines={1}>{item.name}</Text>
+                  <Text style={styles.legendAmt}>${item.amount.toLocaleString()}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Recent Activity */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>⚡ Recent Activity</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Transactions')} style={styles.seeAllBtn}>
+            <Text style={styles.seeAll}>View All</Text>
+            <ChevronRight color="#6366F1" size={15} />
+          </TouchableOpacity>
+        </View>
+
+        {recentTransactions.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Wallet color="#CBD5E1" size={36} />
+            <Text style={styles.emptyTitle}>No transactions yet</Text>
+            <Text style={styles.emptySub}>Add one to get started</Text>
+          </View>
+        ) : (
+          <View style={styles.txList}>
+            {recentTransactions.map(t => (
+              <TransactionCard
+                key={t.id}
+                transaction={t}
+                category={categories.find(c => c.id === t.categoryId)}
+              />
+            ))}
+          </View>
+        )}
+      </View>
+
+      <View style={{ height: 120 }} />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F2F2F7',
+  container: { flex: 1, backgroundColor: '#F1F5F9' },
+
+  // Colored top header banner
+  headerBg: {
+    backgroundColor: '#4F46E5',
+    paddingTop: 56,
+    paddingBottom: 72,
+    paddingHorizontal: 24,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  headerTitle: { color: '#FFFFFF', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
+  avatarWrap: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 2, borderColor: 'rgba(255,255,255,0.4)',
   },
-  greeting: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#8E8E93',
-    marginTop: 4,
-  },
+  avatarText: { color: '#FFFFFF', fontWeight: '800', fontSize: 15 },
+
+  // Floating balance card overlapping the header
   balanceCard: {
-    backgroundColor: '#1C1C1E',
-    marginHorizontal: 16,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginTop: -52,
+    borderRadius: 28,
     padding: 24,
-    borderRadius: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowColor: '#4F46E5',
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowRadius: 24,
+    elevation: 10,
   },
-  balanceLabel: {
-    color: '#A1A1A6',
-    fontSize: 14,
-    fontWeight: '500',
-  },
+  balanceLabel: { color: '#94A3B8', fontSize: 11, fontWeight: '700', letterSpacing: 1.5 },
   balanceAmount: {
-    color: '#FFFFFF',
-    fontSize: 36,
-    fontWeight: '800',
-    marginTop: 8,
-    marginBottom: 24,
+    color: '#0F172A', fontSize: 38, fontWeight: '900',
+    marginTop: 4, marginBottom: 20, letterSpacing: -1,
   },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  statsRow: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#F8FAFC', borderRadius: 18, padding: 14,
   },
-  statBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
+  statChip: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  statChipDivider: { width: 1, height: 36, backgroundColor: '#E2E8F0' },
+  statChipIconGreen: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: 'rgba(16,185,129,0.12)',
+    justifyContent: 'center', alignItems: 'center',
   },
-  iconCircle: {
-    width: 40,
-    height: 40,
+  statChipIconRed: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: 'rgba(244,63,94,0.12)',
+    justifyContent: 'center', alignItems: 'center',
+    marginLeft: 12,
+  },
+  statChipLabel: { color: '#94A3B8', fontSize: 11, fontWeight: '600' },
+  statChipValue: { color: '#0F172A', fontSize: 15, fontWeight: '800', marginTop: 1 },
+
+  section: { marginTop: 28, paddingHorizontal: 20 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: '#0F172A' },
+  seeAllBtn: { flexDirection: 'row', alignItems: 'center' },
+  seeAll: { fontSize: 13, fontWeight: '600', color: '#6366F1', marginRight: 2 },
+
+  // Goal card with left indigo border accent
+  goalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#6366F1',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  goalTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  goalName: { fontSize: 16, fontWeight: '700', color: '#0F172A', marginBottom: 4 },
+  goalSub: { fontSize: 12, color: '#64748B', fontWeight: '500' },
+  goalBadge: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 12, paddingVertical: 6,
     borderRadius: 20,
-    justifyContent: 'center',
+  },
+  goalBadgeText: { fontSize: 13, fontWeight: '800', color: '#6366F1' },
+
+  // Chart card
+  chartCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    paddingTop: 16,
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
     alignItems: 'center',
-    marginRight: 12,
   },
-  statLabel: {
-    color: '#A1A1A6',
-    fontSize: 12,
-  },
-  statAmount: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: 32,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1C1C1E',
-  },
-  seeAll: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#007AFF', // Standard iOS blue
-  },
+  chartLegend: { width: '100%', paddingHorizontal: 20, paddingBottom: 16 },
+  legendRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  legendDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
+  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: '#334155' },
+  legendAmt: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+
+  txList: {},
   emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
+    alignItems: 'center', paddingVertical: 40,
+    backgroundColor: '#FFFFFF', borderRadius: 22,
+    borderWidth: 1.5, borderColor: '#E2E8F0', borderStyle: 'dashed',
   },
-  emptyText: {
-    color: '#8E8E93',
-    marginTop: 12,
-    fontSize: 16,
-  },
+  emptyTitle: { color: '#334155', fontSize: 15, fontWeight: '700', marginTop: 12 },
+  emptySub: { color: '#94A3B8', fontSize: 13, marginTop: 4 },
 });

@@ -9,24 +9,28 @@ interface Props {
 
 export const TransactionCard: React.FC<Props> = ({ transaction, category }) => {
   const isIncome = transaction.type === 'income';
-  const amountColor = isIncome ? '#2E7D32' : '#D32F2F';
+  const amountColor = isIncome ? '#10B981' : '#0F172A';
 
   return (
     <View style={styles.card}>
-      <View style={styles.iconContainer}>
-        <Text style={styles.icon}>{category?.icon || '?'}</Text>
+      <View style={[styles.iconWrapper, { backgroundColor: isIncome ? 'rgba(16, 185, 129, 0.1)' : '#F1F5F9' }]}>
+        <Text style={styles.icon}>{category?.icon || '💳'}</Text>
       </View>
       <View style={styles.detailsContainer}>
         <Text style={styles.categoryName}>{category?.name || 'Unknown'}</Text>
         {transaction.notes ? (
           <Text style={styles.notes} numberOfLines={1}>{transaction.notes}</Text>
-        ) : null}
+        ) : (
+          <Text style={styles.notes}>{new Date(transaction.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}</Text>
+        )}
       </View>
       <View style={styles.amountContainer}>
         <Text style={[styles.amount, { color: amountColor }]}>
-          {isIncome ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+          {isIncome ? '+' : '-'}${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </Text>
-        <Text style={styles.date}>{new Date(transaction.date).toLocaleDateString()}</Text>
+        {transaction.notes ? (
+          <Text style={styles.date}>{new Date(transaction.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}</Text>
+        ) : null}
       </View>
     </View>
   );
@@ -37,21 +41,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
     padding: 16,
-    marginVertical: 6,
-    marginHorizontal: 16,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    marginBottom: 12,
+    borderRadius: 20,
+    shadowColor: '#94A3B8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
     alignItems: 'center',
   },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F5F5F7',
+  iconWrapper: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -64,24 +66,26 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1C1C1E',
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 4,
   },
   notes: {
     fontSize: 13,
-    color: '#8E8E93',
-    marginTop: 2,
+    color: '#64748B',
+    fontWeight: '500',
   },
   amountContainer: {
     alignItems: 'flex-end',
   },
   amount: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   date: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: '#94A3B8',
+    fontWeight: '500',
     marginTop: 4,
   },
 });

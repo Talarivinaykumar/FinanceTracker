@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { addTransaction, addCategory, TransactionType } from '../store/financeSlice';
-import { X, Check } from 'lucide-react-native';
+import { addTransaction, updateTransaction, deleteTransaction, addCategory, TransactionType, Transaction } from '../store/financeSlice';
+import { X, Check, Trash2 } from 'lucide-react-native';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
+  existingTransaction?: Transaction | null;
 }
 
-export const AddTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
+export const AddTransactionModal: React.FC<Props> = ({ visible, onClose, existingTransaction }) => {
   const insets = useSafeAreaInsets();
   const dispatch = useAppDispatch();
   const { categories } = useAppSelector(state => state.finance);
@@ -27,6 +28,20 @@ export const AddTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
 
   const filteredCategories = categories.filter(c => c.type === type);
 
+  useEffect(() => {
+    if (visible && existingTransaction) {
+      setType(existingTransaction.type);
+      setAmount(existingTransaction.amount.toString());
+      setNotes(existingTransaction.notes);
+      setSelectedCategoryId(existingTransaction.categoryId);
+    } else if (visible && !existingTransaction) {
+      setType('expense');
+      setAmount('');
+      setNotes('');
+      setSelectedCategoryId(null);
+    }
+  }, [visible, existingTransaction]);
+
   const handleSave = () => {
     if (!amount || isNaN(Number(amount))) {
       Alert.alert('Invalid Amount', 'Please enter a valid number.');
@@ -37,15 +52,40 @@ export const AddTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
       return;
     }
 
-    dispatch(addTransaction({
-      amount: Number(amount),
-      type,
-      categoryId: selectedCategoryId,
-      notes,
-      date: new Date().toISOString(),
-    }));
-    
+    if (existingTransaction) {
+      dispatch(updateTransaction({
+        ...existingTransaction,
+        amount: Number(amount),
+        type,
+        categoryId: selectedCategoryId,
+        notes,
+      }));
+    } else {
+      dispatch(addTransaction({
+        amount: Number(amount),
+        type,
+        categoryId: selectedCategoryId,
+        notes,
+        date: new Date().toISOString(),
+      }));
+    }
     resetAndClose();
+  };
+
+  const handleDelete = () => {
+    if (existingTransaction) {
+      Alert.alert('Delete Transaction', 'Are you sure you want to delete this transaction?', [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive', 
+          onPress: () => {
+            dispatch(deleteTransaction(existingTransaction.id));
+            resetAndClose();
+          }
+        }
+      ]);
+    }
   };
 
   const handleCreateCategory = () => {
@@ -81,9 +121,8 @@ export const AddTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
         <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom, 20) }]}>
-          
           <View style={styles.header}>
-            <Text style={styles.title}>Add Transaction</Text>
+            <Text style={styles.title}>{existingTransaction ? 'Edit Transaction' : 'Add Transaction'}</Text>
             <TouchableOpacity onPress={resetAndClose} style={styles.closeButton}>
               <X color="#1C1C1E" size={24} />
             </TouchableOpacity>
@@ -113,7 +152,6 @@ export const AddTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
               placeholderTextColor="#C7C7CC"
               value={amount}
               onChangeText={setAmount}
-              autoFocus
             />
           </View>
 
@@ -169,10 +207,19 @@ export const AddTransactionModal: React.FC<Props> = ({ visible, onClose }) => {
             onChangeText={setNotes}
           />
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Save Transaction</Text>
-          </TouchableOpacity>
-
+          <View style={styles.actionsContainer}>
+            {existingTransaction && (
+              <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+                <Trash2 color="#FFFFFF" size={20} />
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity 
+              style={[styles.saveButton, existingTransaction && { flex: 1, marginLeft: 12 }]} 
+              onPress={handleSave}
+            >
+              <Text style={styles.saveButtonText}>{existingTransaction ? 'Save Changes' : 'Save Transaction'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -274,7 +321,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   catPillActive: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#0EA5E9',
   },
   catIcon: {
     fontSize: 16,
@@ -298,7 +345,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   newCatBtnText: {
-    color: '#007AFF',
+    color: '#0EA5E9',
     fontSize: 14,
     fontWeight: '500',
   },
@@ -325,7 +372,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   saveCatBtn: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#0EA5E9',
     padding: 12,
     borderRadius: 12,
   },
@@ -337,8 +384,21 @@ const styles = StyleSheet.create({
     marginBottom: 32,
     color: '#1C1C1E',
   },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deleteButton: {
+    backgroundColor: '#D32F2F',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   saveButton: {
-    backgroundColor: '#000000',
+    flex: 1,
+    backgroundColor: '#0EA5E9',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',

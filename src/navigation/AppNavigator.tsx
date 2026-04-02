@@ -28,12 +28,27 @@ export const AppNavigator = () => {
             if (route.name === 'Insights') return <PieChart color={color} size={size} />;
             if (route.name === 'Goals') return <Target color={color} size={size} />;
           },
-          tabBarActiveTintColor: '#2E7D32', // A nice finance green
-          tabBarInactiveTintColor: '#8E8E93',
+          tabBarActiveTintColor: '#0EA5E9',
+          tabBarInactiveTintColor: '#94A3B8',
           headerShown: false,
+          tabBarPressOpacity: 1,
+          tabBarPressColor: 'transparent',
           tabBarStyle: {
-            paddingBottom: 5,
-            height: 60,
+            backgroundColor: '#FFFFFF',
+            borderTopColor: '#E2E8F0',
+            borderTopWidth: 1,
+            paddingBottom: 8,
+            paddingTop: 8,
+            height: 68,
+            shadowColor: '#94A3B8',
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.08,
+            shadowRadius: 12,
+            elevation: 8,
+          },
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
           },
         })}
       >
