@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
+import { useTheme, ThemeColors } from '../theme/colors';
 
 interface Props {
   current: number;
@@ -8,8 +9,12 @@ interface Props {
   height?: number;
 }
 
-export const ProgressBar: React.FC<Props> = ({ current, target, color = '#6d5e00', height = 8 }) => {
+export const ProgressBar: React.FC<Props> = ({ current, target, color, height = 8 }) => {
   const percentage = Math.min(Math.max((current / target) * 100, 0), 100);
+  const theme = useTheme();
+  const styles = React.useMemo(() => getStyles(theme), [theme]);
+
+  const activeColor = color || theme.gold;
 
   return (
     <View style={styles.container}>
@@ -18,30 +23,15 @@ export const ProgressBar: React.FC<Props> = ({ current, target, color = '#6d5e00
         <Text style={styles.text}>${target.toFixed(2)}</Text>
       </View>
       <View style={[styles.track, { height }]}>
-        <View style={[styles.progress, { width: `${percentage}%`, backgroundColor: color }]} />
+        <View style={[styles.progress, { width: `${percentage}%`, backgroundColor: activeColor }]} />
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    marginVertical: 8,
-  },
-  track: {
-    width: '100%',
-    backgroundColor: '#e3e2e3',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progress: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  text: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#434653',
-  },
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
+  container: { width: '100%', marginVertical: 8 },
+  track: { width: '100%', backgroundColor: theme.border, borderRadius: 4, overflow: 'hidden' },
+  progress: { height: '100%', borderRadius: 4 },
+  text: { fontSize: 12, fontWeight: '500', color: theme.textSecondary },
 });

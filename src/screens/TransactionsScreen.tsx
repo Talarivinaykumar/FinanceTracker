@@ -7,9 +7,12 @@ import { SkeletonLoader } from '../components/SkeletonLoader';
 import { AddTransactionModal } from '../components/AddTransactionModal';
 import { Plus, Search } from 'lucide-react-native';
 import { Transaction } from '../store/financeSlice';
+import { useTheme, ThemeColors } from '../theme/colors';
 
 export const TransactionsScreen = () => {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
+  const styles = React.useMemo(() => getStyles(theme), [theme]);
   const { transactions, categories } = useAppSelector(state => state.finance);
   
   const [modalVisible, setModalVisible] = useState(false);
@@ -57,11 +60,11 @@ export const TransactionsScreen = () => {
       </View>
 
       <View style={styles.searchContainer}>
-        <Search color="#8E8E93" size={20} style={styles.searchIcon} />
+        <Search color={theme.textTertiary} size={20} style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search by category or notes..."
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={theme.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -71,14 +74,14 @@ export const TransactionsScreen = () => {
         <View style={{ paddingHorizontal: 16 }}>
           {[...Array(5)].map((_, i) => (
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-              <SkeletonLoader width={50} height={50} borderRadius={25} style={{ marginRight: 16 }} />
+              <SkeletonLoader width={50} height={50} borderRadius={25} style={{ marginRight: 16, backgroundColor: theme.skeletonHighlight }} />
               <View style={{ flex: 1 }}>
-                <SkeletonLoader width={120} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
-                <SkeletonLoader width={80} height={12} borderRadius={4} />
+                <SkeletonLoader width={120} height={16} borderRadius={4} style={{ marginBottom: 8, backgroundColor: theme.skeletonHighlight }} />
+                <SkeletonLoader width={80} height={12} borderRadius={4} style={{ backgroundColor: theme.skeletonBackground }} />
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <SkeletonLoader width={60} height={16} borderRadius={4} style={{ marginBottom: 8 }} />
-                <SkeletonLoader width={40} height={12} borderRadius={4} />
+                <SkeletonLoader width={60} height={16} borderRadius={4} style={{ marginBottom: 8, backgroundColor: theme.skeletonHighlight }} />
+                <SkeletonLoader width={40} height={12} borderRadius={4} style={{ backgroundColor: theme.skeletonBackground }} />
               </View>
             </View>
           ))}
@@ -88,7 +91,7 @@ export const TransactionsScreen = () => {
           data={filteredTransactions}
           keyExtractor={item => item.id}
           contentContainerStyle={{ paddingBottom: 100 }}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#0EA5E9" colors={['#0EA5E9']} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} colors={[theme.primary]} />}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => openEditModal(item)} activeOpacity={0.7} style={{ paddingHorizontal: 16 }}>
               <TransactionCard
@@ -123,62 +126,22 @@ export const TransactionsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#faf9fa',
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#faf9fa',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#1b1c1d',
-    fontFamily: 'serif',
-  },
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background },
+  header: { paddingHorizontal: 20, paddingVertical: 16, backgroundColor: theme.background },
+  title: { fontSize: 28, fontWeight: '800', color: theme.text, fontFamily: 'serif' },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    marginHorizontal: 16,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e3e2e3',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card,
+    marginHorizontal: 16, borderRadius: 8, paddingHorizontal: 12, marginBottom: 16,
+    borderWidth: 1, borderColor: theme.border,
   },
-  searchIcon: {
-    marginRight: 8,
-    color: '#737784',
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#1b1c1d',
-  },
-  emptyState: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: '#434653',
-    fontSize: 16,
-  },
+  searchIcon: { marginRight: 8, color: theme.textTertiary },
+  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16, color: theme.text },
+  emptyState: { padding: 40, alignItems: 'center' },
+  emptyText: { color: theme.textSecondary, fontSize: 16 },
   fab: {
-    position: 'absolute',
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: '#094cb2',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 0,
-    borderWidth: 1,
-    borderColor: '#094cb2',
+    position: 'absolute', right: 20, width: 60, height: 60,
+    borderRadius: 8, backgroundColor: theme.primary, justifyContent: 'center', alignItems: 'center',
+    elevation: 0, borderWidth: 1, borderColor: theme.primary,
   },
 });

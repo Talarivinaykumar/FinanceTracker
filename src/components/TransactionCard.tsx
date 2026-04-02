@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Transaction, Category } from '../store/financeSlice';
+import { useTheme, ThemeColors } from '../theme/colors';
 
 interface Props {
   transaction: Transaction;
@@ -8,12 +9,15 @@ interface Props {
 }
 
 export const TransactionCard: React.FC<Props> = ({ transaction, category }) => {
+  const theme = useTheme();
+  const styles = React.useMemo(() => getStyles(theme), [theme]);
   const isIncome = transaction.type === 'income';
-  const amountColor = isIncome ? '#094cb2' : '#1b1c1d';
+  const amountColor = isIncome ? theme.success : theme.text;
+  const iconBgColor = isIncome ? theme.successBackground : theme.skeletonBackground;
 
   return (
     <View style={styles.card}>
-      <View style={[styles.iconWrapper, { backgroundColor: isIncome ? 'rgba(9, 76, 178, 0.08)' : '#f5f3f4' }]}>
+      <View style={[styles.iconWrapper, { backgroundColor: iconBgColor }]}>
         <Text style={styles.icon}>{category?.icon || '💳'}</Text>
       </View>
       <View style={styles.detailsContainer}>
@@ -36,55 +40,17 @@ export const TransactionCard: React.FC<Props> = ({ transaction, category }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    padding: 16,
-    marginBottom: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e3e2e3',
+    flexDirection: 'row', backgroundColor: theme.card, padding: 16, marginBottom: 8,
+    borderRadius: 8, alignItems: 'center', borderWidth: 1, borderColor: theme.border,
   },
-  iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  icon: {
-    fontSize: 20,
-  },
-  detailsContainer: {
-    flex: 1,
-  },
-  categoryName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1b1c1d',
-    marginBottom: 2,
-    fontFamily: 'serif',
-  },
-  notes: {
-    fontSize: 13,
-    color: '#434653',
-    fontWeight: '400',
-  },
-  amountContainer: {
-    alignItems: 'flex-end',
-  },
-  amount: {
-    fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'serif',
-  },
-  date: {
-    fontSize: 12,
-    color: '#737784',
-    fontWeight: '400',
-    marginTop: 2,
-  },
+  iconWrapper: { width: 44, height: 44, borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+  icon: { fontSize: 20 },
+  detailsContainer: { flex: 1 },
+  categoryName: { fontSize: 16, fontWeight: '600', color: theme.text, marginBottom: 2, fontFamily: 'serif' },
+  notes: { fontSize: 13, color: theme.textSecondary, fontWeight: '400' },
+  amountContainer: { alignItems: 'flex-end' },
+  amount: { fontSize: 16, fontWeight: '600', fontFamily: 'serif' },
+  date: { fontSize: 12, color: theme.textTertiary, fontWeight: '400', marginTop: 2 },
 });

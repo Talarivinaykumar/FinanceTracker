@@ -5,6 +5,7 @@ import { useAppSelector } from '../store/hooks';
 import { PieChart, LineChart } from 'react-native-chart-kit';
 import { SkeletonLoader } from '../components/SkeletonLoader';
 import { TrendingUp, TrendingDown, Award, CalendarDays } from 'lucide-react-native';
+import { useTheme, ThemeColors } from '../theme/colors';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -15,6 +16,8 @@ const getChartColor = (index: number) => {
 
 export const InsightsScreen = () => {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
+  const styles = React.useMemo(() => getStyles(theme), [theme]);
   const { transactions, categories } = useAppSelector(state => state.finance);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -41,7 +44,7 @@ export const InsightsScreen = () => {
       name: cat?.name || 'Unknown',
       amount: categoryTotals[catId],
       color: getChartColor(index),
-      legendFontColor: '#475569',
+      legendFontColor: theme.textSecondary,
       legendFontSize: 12,
     };
   }).sort((a, b) => b.amount - a.amount);
@@ -85,13 +88,13 @@ export const InsightsScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.headerBg}>
-          <SkeletonLoader width={80} height={14} borderRadius={4} style={{ marginBottom: 8, backgroundColor: 'rgba(255,255,255,0.2)' }} />
-          <SkeletonLoader width={180} height={26} borderRadius={6} style={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+          <SkeletonLoader width={80} height={14} borderRadius={4} style={{ marginBottom: 8, backgroundColor: theme.skeletonHighlight }} />
+          <SkeletonLoader width={180} height={26} borderRadius={6} style={{ backgroundColor: theme.skeletonBackground }} />
         </View>
         <View style={{ paddingHorizontal: 20, marginTop: 10 }}>
-          <SkeletonLoader width="100%" height={100} borderRadius={22} style={{ marginBottom: 24 }} />
-          <SkeletonLoader width="100%" height={200} borderRadius={22} style={{ marginBottom: 24 }} />
-          <SkeletonLoader width="100%" height={180} borderRadius={22} />
+          <SkeletonLoader width="100%" height={100} borderRadius={22} style={{ marginBottom: 24, backgroundColor: theme.skeletonHighlight }} />
+          <SkeletonLoader width="100%" height={200} borderRadius={22} style={{ marginBottom: 24, backgroundColor: theme.skeletonBackground }} />
+          <SkeletonLoader width="100%" height={180} borderRadius={22} style={{ backgroundColor: theme.skeletonHighlight }} />
         </View>
       </View>
     );
@@ -101,7 +104,7 @@ export const InsightsScreen = () => {
     <ScrollView
       style={styles.container}
       showsVerticalScrollIndicator={false}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" colors={['#6366F1']} />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} colors={[theme.primary]} />}
     >
       <View style={styles.headerBg}>
         <Text style={styles.headerSub}>Analytics</Text>
@@ -117,7 +120,6 @@ export const InsightsScreen = () => {
       ) : (
         <View style={{ marginTop: 10, paddingHorizontal: 20 }}>
 
-          {/* Top Category Hero Card */}
           {highestExpense && (
             <View style={styles.topCatCard}>
               <View style={styles.topCatRow}>
@@ -129,13 +131,12 @@ export const InsightsScreen = () => {
                   </Text>
                 </View>
                 <View style={styles.awardCircle}>
-                  <Award color="#F59E0B" size={28} />
+                  <Award color={theme.warning} size={28} />
                 </View>
               </View>
             </View>
           )}
 
-          {/* Weekly Comparison */}
           <View style={styles.sectionTitle}>
             <Text style={styles.sectionText}>📅 Weekly Comparison</Text>
           </View>
@@ -151,15 +152,14 @@ export const InsightsScreen = () => {
                 <Text style={styles.weekAmt}>${lastWeekExpenses.toLocaleString()}</Text>
               </View>
             </View>
-            <View style={[styles.diffBadge, { backgroundColor: isWeeklyGood ? 'rgba(16,185,129,0.12)' : 'rgba(244,63,94,0.12)' }]}>
-              {isWeeklyGood ? <TrendingDown color="#10B981" size={16} /> : <TrendingUp color="#F43F5E" size={16} />}
-              <Text style={[styles.diffText, { color: isWeeklyGood ? '#10B981' : '#F43F5E' }]}>
+            <View style={[styles.diffBadge, { backgroundColor: isWeeklyGood ? theme.successBackground : theme.dangerBackground }]}>
+              {isWeeklyGood ? <TrendingDown color={theme.success} size={16} /> : <TrendingUp color={theme.danger} size={16} />}
+              <Text style={[styles.diffText, { color: isWeeklyGood ? theme.success : theme.danger }]}>
                 {isWeeklyGood ? '↓ Down' : '↑ Up'} {Math.abs(weeklyPercentage).toFixed(1)}% vs last week
               </Text>
             </View>
           </View>
 
-          {/* Pie Chart */}
           <View style={styles.sectionTitle}>
             <Text style={styles.sectionText}>🍩 Category Breakdown</Text>
           </View>
@@ -187,10 +187,9 @@ export const InsightsScreen = () => {
             </View>
           </View>
 
-          {/* Line Chart */}
           <View style={styles.sectionTitle}>
             <Text style={styles.sectionText}>📈 6-Month Trend</Text>
-            <CalendarDays color="#94A3B8" size={18} />
+            <CalendarDays color={theme.textTertiary} size={18} />
           </View>
           <View style={[styles.chartCard, { paddingRight: 32, paddingTop: 20 }]}>
             <LineChart
@@ -200,12 +199,12 @@ export const InsightsScreen = () => {
               withInnerLines={false}
               withOuterLines={false}
               chartConfig={{
-                backgroundColor: '#FFFFFF',
-                backgroundGradientFrom: '#FFFFFF',
-                backgroundGradientTo: '#FFFFFF',
+                backgroundColor: theme.card,
+                backgroundGradientFrom: theme.card,
+                backgroundGradientTo: theme.card,
                 decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(99, 102, 241, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(100, 116, 139, ${opacity})`,
+                labelColor: (opacity = 1) => theme.textSecondary,
                 strokeWidth: 3,
                 propsForDots: { r: '5', strokeWidth: '2', stroke: '#4F46E5' },
               }}
@@ -221,81 +220,61 @@ export const InsightsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#faf9fa' },
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background },
   headerBg: {
-    backgroundColor: '#faf9fa',
-    paddingTop: 56,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
+    backgroundColor: theme.background,
+    paddingTop: 56, paddingBottom: 24, paddingHorizontal: 24,
   },
-  headerSub: { color: '#737784', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  headerTitle: { color: '#1b1c1d', fontSize: 26, fontWeight: '800', letterSpacing: -0.5, fontFamily: 'serif' },
+  headerSub: { color: theme.textTertiary, fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  headerTitle: { color: theme.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.5, fontFamily: 'serif' },
 
   emptyCard: {
-    marginHorizontal: 20,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 40,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e3e2e3',
+    marginHorizontal: 20, backgroundColor: theme.card, borderRadius: 8, padding: 40,
+    alignItems: 'center', borderWidth: 1, borderColor: theme.border,
   },
   emptyEmoji: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: '#1b1c1d', marginBottom: 6, fontFamily: 'serif' },
-  emptySub: { fontSize: 13, color: '#737784', textAlign: 'center' },
+  emptyTitle: { fontSize: 17, fontWeight: '700', color: theme.text, marginBottom: 6, fontFamily: 'serif' },
+  emptySub: { fontSize: 13, color: theme.textTertiary, textAlign: 'center' },
 
   topCatCard: {
-    backgroundColor: '#094cb2',
-    borderRadius: 8,
-    padding: 24,
-    marginBottom: 20,
-    elevation: 0,
+    backgroundColor: theme.primary, borderRadius: 8, padding: 24, marginBottom: 20, elevation: 0,
   },
   topCatRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   topCatEyebrow: { color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8 },
   topCatName: { color: '#ffffff', fontSize: 26, fontWeight: '800', marginBottom: 4, fontFamily: 'serif' },
   topCatAmount: { color: '#e7ebff', fontSize: 18, fontWeight: '700' },
   awardCircle: {
-    width: 56, height: 56, borderRadius: 28,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 56, height: 56, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.15)',
     justifyContent: 'center', alignItems: 'center',
   },
 
   sectionTitle: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 12, marginTop: 8,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 8,
   },
-  sectionText: { fontSize: 16, fontWeight: '800', color: '#1b1c1d', fontFamily: 'serif' },
+  sectionText: { fontSize: 16, fontWeight: '800', color: theme.text, fontFamily: 'serif' },
 
   weeklyCard: {
-    backgroundColor: '#ffffff', borderRadius: 8, padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#e3e2e3',
+    backgroundColor: theme.card, borderRadius: 8, padding: 20, marginBottom: 20,
+    borderWidth: 1, borderColor: theme.border,
   },
   weeklyRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
   weekBox: { flex: 1 },
-  weekDivider: { width: 1, height: 40, backgroundColor: '#e3e2e3', marginHorizontal: 20 },
-  weekLabel: { color: '#434653', fontSize: 12, fontWeight: '600', marginBottom: 4 },
-  weekAmt: { color: '#1b1c1d', fontSize: 22, fontWeight: '800', fontFamily: 'serif' },
+  weekDivider: { width: 1, height: 40, backgroundColor: theme.border, marginHorizontal: 20 },
+  weekLabel: { color: theme.textSecondary, fontSize: 12, fontWeight: '600', marginBottom: 4 },
+  weekAmt: { color: theme.text, fontSize: 22, fontWeight: '800', fontFamily: 'serif' },
   diffBadge: {
-    flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'center', paddingVertical: 10, borderRadius: 4,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 4,
   },
   diffText: { fontWeight: '700', fontSize: 13, marginLeft: 6 },
 
   chartCard: {
-    backgroundColor: '#ffffff', borderRadius: 8, paddingVertical: 16,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#e3e2e3',
-    alignItems: 'center',
-    overflow: 'hidden',
+    backgroundColor: theme.card, borderRadius: 8, paddingVertical: 16, marginBottom: 20,
+    borderWidth: 1, borderColor: theme.border, alignItems: 'center', overflow: 'hidden',
   },
   legendContainer: { width: '100%', paddingHorizontal: 20, paddingBottom: 8 },
   legendItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   legendDot: { width: 10, height: 10, borderRadius: 5, marginRight: 10 },
-  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: '#434653' },
-  legendAmt: { fontSize: 13, fontWeight: '700', color: '#1b1c1d', fontFamily: 'serif' },
+  legendName: { flex: 1, fontSize: 13, fontWeight: '600', color: theme.textSecondary },
+  legendAmt: { fontSize: 13, fontWeight: '700', color: theme.text, fontFamily: 'serif' },
 });

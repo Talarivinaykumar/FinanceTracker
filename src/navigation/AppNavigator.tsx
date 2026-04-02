@@ -7,6 +7,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { TransactionsScreen } from '../screens/TransactionsScreen';
 import { InsightsScreen } from '../screens/InsightsScreen';
 import { GoalsScreen } from '../screens/GoalsScreen';
+import { useTheme } from '../theme/colors';
 
 export type RootTabParamList = {
   Home: undefined;
@@ -18,6 +19,8 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 export const AppNavigator = () => {
+  const theme = useTheme();
+
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -28,19 +31,19 @@ export const AppNavigator = () => {
             if (route.name === 'Insights') return <PieChart color={color} size={size} />;
             if (route.name === 'Goals') return <Target color={color} size={size} />;
           },
-          tabBarActiveTintColor: '#0EA5E9',
-          tabBarInactiveTintColor: '#94A3B8',
+          tabBarActiveTintColor: theme.primary,
+          tabBarInactiveTintColor: theme.textTertiary,
           headerShown: false,
           tabBarPressOpacity: 1,
           tabBarPressColor: 'transparent',
           tabBarStyle: {
-            backgroundColor: '#FFFFFF',
-            borderTopColor: '#E2E8F0',
+            backgroundColor: theme.card,
+            borderTopColor: theme.border,
             borderTopWidth: 1,
             paddingBottom: 8,
             paddingTop: 8,
             height: 68,
-            shadowColor: '#94A3B8',
+            shadowColor: '#000',
             shadowOffset: { width: 0, height: -4 },
             shadowOpacity: 0.08,
             shadowRadius: 12,

@@ -6,11 +6,17 @@ import { addGoal, updateGoal, setMonthlyBudget } from '../store/financeSlice';
 import { ProgressBar } from '../components/ProgressBar';
 import { SkeletonLoader } from '../components/SkeletonLoader';
 import { Target, Plus, X, Edit3, AlertCircle } from 'lucide-react-native';
+import { useTheme, ThemeColors } from '../theme/colors';
 
-const GOAL_COLORS = ['#6366F1', '#0D9488', '#F59E0B', '#F43F5E', '#8B5CF6', '#0EA5E9'];
+const getGoalColor = (index: number, theme: ThemeColors) => {
+  const colors = [theme.primary, theme.success, theme.warning, theme.danger, '#8B5CF6', '#0EA5E9'];
+  return colors[index % colors.length];
+};
 
 export const GoalsScreen = () => {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
+  const styles = React.useMemo(() => getStyles(theme), [theme]);
   const dispatch = useAppDispatch();
   const { goals, transactions, monthlyBudget } = useAppSelector(state => state.finance);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -35,9 +41,9 @@ export const GoalsScreen = () => {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const budgetPercentage = Math.min((currentMonthExpenses / (monthlyBudget || 1)) * 100, 100);
-  let budgetColor = '#10B981'; // Green
-  if (budgetPercentage >= 90) budgetColor = '#EF4444'; // Red
-  else if (budgetPercentage >= 75) budgetColor = '#F59E0B'; // Orange
+  let budgetColor = theme.success; // Green
+  if (budgetPercentage >= 90) budgetColor = theme.danger; // Red
+  else if (budgetPercentage >= 75) budgetColor = theme.warning; // Orange
 
   // Modals state
   const [goalModalVisible, setGoalModalVisible] = useState(false);
@@ -92,13 +98,13 @@ export const GoalsScreen = () => {
     return (
       <View style={styles.container}>
         <View style={styles.headerBg}>
-          <SkeletonLoader width={140} height={14} borderRadius={4} style={{ marginBottom: 8, backgroundColor: 'rgba(255,255,255,0.2)' }} />
-          <SkeletonLoader width={180} height={26} borderRadius={6} style={{ backgroundColor: 'rgba(255,255,255,0.3)' }} />
+          <SkeletonLoader width={140} height={14} borderRadius={4} style={{ marginBottom: 8, backgroundColor: theme.skeletonHighlight }} />
+          <SkeletonLoader width={180} height={26} borderRadius={6} style={{ backgroundColor: theme.skeletonBackground }} />
         </View>
         <View style={{ paddingHorizontal: 20, marginTop: 10 }}>
-          <SkeletonLoader width="100%" height={160} borderRadius={22} style={{ marginBottom: 24 }} />
-          <SkeletonLoader width="100%" height={120} borderRadius={22} style={{ marginBottom: 16 }} />
-          <SkeletonLoader width="100%" height={120} borderRadius={22} />
+          <SkeletonLoader width="100%" height={160} borderRadius={22} style={{ marginBottom: 24, backgroundColor: theme.skeletonHighlight }} />
+          <SkeletonLoader width="100%" height={120} borderRadius={22} style={{ marginBottom: 16, backgroundColor: theme.skeletonBackground }} />
+          <SkeletonLoader width="100%" height={120} borderRadius={22} style={{ backgroundColor: theme.skeletonHighlight }} />
         </View>
       </View>
     );
@@ -106,7 +112,7 @@ export const GoalsScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Teal header banner */}
+      {/* header banner */}
       <View style={styles.headerBg}>
         <View style={styles.headerRow}>
           <View>
@@ -114,7 +120,7 @@ export const GoalsScreen = () => {
             <Text style={styles.headerTitle}>Goals & Budget 🎯</Text>
           </View>
           <TouchableOpacity onPress={() => setGoalModalVisible(true)} style={styles.addBtn}>
-            <Plus color="#FFFFFF" size={20} />
+            <Plus color={theme.text} size={20} />
           </TouchableOpacity>
         </View>
       </View>
@@ -122,7 +128,7 @@ export const GoalsScreen = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFFFFF" colors={['#0D9488']} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} colors={[theme.primary]} />}
       >
         {/* Budget Card */}
         <View style={styles.sectionWrapper}>
@@ -141,13 +147,13 @@ export const GoalsScreen = () => {
                 </Text>
               </View>
               <TouchableOpacity onPress={() => setBudgetModalVisible(true)} style={styles.editBtn}>
-                <Edit3 color="#64748B" size={18} />
+                <Edit3 color={theme.textSecondary} size={18} />
               </TouchableOpacity>
             </View>
             <ProgressBar current={currentMonthExpenses} target={monthlyBudget || 1} color={budgetColor} height={12} />
             {budgetPercentage >= 90 && (
               <View style={styles.alertBox}>
-                <AlertCircle color="#EF4444" size={16} />
+                <AlertCircle color={theme.danger} size={16} />
                 <Text style={styles.alertText}>Approaching or exceeded budget limit!</Text>
               </View>
             )}
@@ -159,31 +165,34 @@ export const GoalsScreen = () => {
           <Text style={styles.sectionTitle}>🏅 Savings Goals</Text>
           {goals.length === 0 ? (
             <View style={styles.emptyState}>
-              <Target color="#CBD5E1" size={36} />
+              <Target color={theme.textTertiary} size={36} />
               <Text style={styles.emptyTitle}>No goals yet</Text>
               <Text style={styles.emptySub}>Tap + to create your first savings goal</Text>
             </View>
           ) : (
-            goals.map((goal, idx) => (
+            goals.map((goal, idx) => {
+              const goalColor = getGoalColor(idx, theme);
+              return (
               <TouchableOpacity
                 key={goal.id}
-                style={[styles.goalCard, { borderLeftColor: GOAL_COLORS[idx % GOAL_COLORS.length] }]}
+                style={[styles.goalCard, { borderLeftColor: goalColor }]}
                 activeOpacity={0.8}
                 onPress={() => openAddFunds(goal.id)}
               >
                 <View style={styles.goalRow}>
                   <Text style={styles.goalTitle}>{goal.title}</Text>
-                  <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[idx % GOAL_COLORS.length] + '20' }]}>
-                    <Text style={[styles.goalPct, { color: GOAL_COLORS[idx % GOAL_COLORS.length] }]}>
+                  <View style={[styles.goalBadge, { backgroundColor: theme.skeletonBackground }]}>
+                    <Text style={[styles.goalPct, { color: goalColor }]}>
                       {Math.round((goal.current / goal.target) * 100)}%
                     </Text>
                   </View>
                 </View>
                 <Text style={styles.goalSub}>${goal.current.toLocaleString()} saved of ${goal.target.toLocaleString()}</Text>
-                <ProgressBar current={goal.current} target={goal.target} color={GOAL_COLORS[idx % GOAL_COLORS.length]} height={10} />
+                <ProgressBar current={goal.current} target={goal.target} color={goalColor} height={10} />
                 <Text style={styles.tapHint}>Tap to add funds →</Text>
               </TouchableOpacity>
-            ))
+              )
+            })
           )}
         </View>
       </ScrollView>
@@ -195,14 +204,14 @@ export const GoalsScreen = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>New Savings Goal</Text>
               <TouchableOpacity onPress={() => setGoalModalVisible(false)} style={styles.closeBtn}>
-                <X color="#475569" size={20} />
+                <X color={theme.textSecondary} size={20} />
               </TouchableOpacity>
             </View>
 
             <TextInput
               style={styles.input}
               placeholder="Goal Title (e.g. Vacation)"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={theme.textTertiary}
               value={title}
               onChangeText={setTitle}
             />
@@ -210,7 +219,7 @@ export const GoalsScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Target Amount ($)"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={theme.textTertiary}
               keyboardType="numeric"
               value={target}
               onChangeText={setTarget}
@@ -230,14 +239,14 @@ export const GoalsScreen = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Set Monthly Budget</Text>
               <TouchableOpacity onPress={() => setBudgetModalVisible(false)} style={styles.closeBtn}>
-                <X color="#475569" size={20} />
+                <X color={theme.textSecondary} size={20} />
               </TouchableOpacity>
             </View>
 
             <TextInput
               style={styles.input}
               placeholder="Budget Limit ($)"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={theme.textTertiary}
               keyboardType="numeric"
               value={newBudget}
               onChangeText={setNewBudget}
@@ -258,14 +267,14 @@ export const GoalsScreen = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Add Funds to Goal</Text>
               <TouchableOpacity onPress={() => setAddFundsVisible(false)} style={styles.closeBtn}>
-                <X color="#475569" size={20} />
+                <X color={theme.textSecondary} size={20} />
               </TouchableOpacity>
             </View>
 
             <TextInput
               style={styles.input}
               placeholder="Amount to Add ($)"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={theme.textTertiary}
               keyboardType="numeric"
               value={fundsAmount}
               onChangeText={setFundsAmount}
@@ -282,119 +291,75 @@ export const GoalsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#faf9fa',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-
-  // NEW styles
+const getStyles = (theme: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background },
   headerBg: {
-    backgroundColor: '#faf9fa',
-    paddingTop: 56,
-    paddingBottom: 24,
-    paddingHorizontal: 24,
+    backgroundColor: theme.background,
+    paddingTop: 56, paddingBottom: 24, paddingHorizontal: 24,
   },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  headerSub: { color: '#737784', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  headerTitle: { color: '#1b1c1d', fontSize: 26, fontWeight: '800', fontFamily: 'serif' },
-
-  title: { fontSize: 28, fontWeight: '800', color: '#1b1c1d', letterSpacing: -0.5, fontFamily: 'serif' },
-  subtitle: { fontSize: 15, color: '#434653', fontWeight: '500', marginBottom: 4 },
+  headerSub: { color: theme.textTertiary, fontSize: 14, fontWeight: '500', marginBottom: 4 },
+  headerTitle: { color: theme.text, fontSize: 26, fontWeight: '800', fontFamily: 'serif' },
 
   addBtn: {
-    backgroundColor: '#f5f3f4',
-    width: 44, height: 44, borderRadius: 8,
-    justifyContent: 'center', alignItems: 'center',
-    borderWidth: 1, borderColor: '#e3e2e3',
+    backgroundColor: theme.card, width: 44, height: 44, borderRadius: 8,
+    justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: theme.border,
   },
   scrollContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 100 },
   sectionWrapper: { marginBottom: 28 },
-  sectionTitle: { fontSize: 17, fontWeight: '800', color: '#1b1c1d', marginBottom: 14, fontFamily: 'serif' },
+  sectionTitle: { fontSize: 17, fontWeight: '800', color: theme.text, marginBottom: 14, fontFamily: 'serif' },
 
   budgetCard: {
-    backgroundColor: '#ffffff',
-    padding: 24, borderRadius: 8,
-    borderWidth: 1, borderColor: '#e3e2e3',
+    backgroundColor: theme.card, padding: 24, borderRadius: 8,
+    borderWidth: 1, borderColor: theme.border,
   },
-  budgetCardDanger: { borderColor: '#ba1a1a', borderWidth: 1.5 },
-  budgetHeader: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'flex-start', marginBottom: 16,
-  },
-  budgetLabel: { fontSize: 14, fontWeight: '600', color: '#434653', marginBottom: 6 },
-  budgetSpent: { fontSize: 28, fontWeight: '800', color: '#1b1c1d', fontFamily: 'serif' },
-  budgetOf: { fontSize: 18, color: '#737784', fontWeight: '600', fontFamily: 'serif' },
-  budgetTitle: { fontSize: 15, fontWeight: '600', color: '#434653', marginBottom: 6 },
-  budgetTotal: { fontSize: 18, color: '#737784', fontWeight: '600', fontFamily: 'serif' },
-  editBtn: { padding: 8, backgroundColor: '#f5f3f4', borderRadius: 4 },
-  editBudgetBtn: { padding: 6, backgroundColor: '#f5f3f4', borderRadius: 4 },
+  budgetCardDanger: { borderColor: theme.danger, borderWidth: 1.5 },
+  budgetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
+  budgetLabel: { fontSize: 14, fontWeight: '600', color: theme.textSecondary, marginBottom: 6 },
+  budgetSpent: { fontSize: 28, fontWeight: '800', color: theme.text, fontFamily: 'serif' },
+  budgetOf: { fontSize: 18, color: theme.textSecondary, fontWeight: '600', fontFamily: 'serif' },
+  editBtn: { padding: 8, backgroundColor: theme.skeletonBackground, borderRadius: 4 },
   alertBox: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#ffdad6',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: theme.dangerBackground,
     padding: 12, borderRadius: 8, marginTop: 16,
   },
-  alertText: { color: '#93000a', fontSize: 13, fontWeight: '600', marginLeft: 8 },
+  alertText: { color: theme.danger, fontSize: 13, fontWeight: '600', marginLeft: 8 },
 
   goalCard: {
-    backgroundColor: '#ffffff',
-    padding: 20, borderRadius: 8, marginBottom: 14,
-    borderLeftWidth: 4, borderLeftColor: '#6d5e00',
-    borderWidth: 1, borderColor: '#e3e2e3',
+    backgroundColor: theme.card, padding: 20, borderRadius: 8, marginBottom: 14,
+    borderWidth: 1, borderColor: theme.border,
   },
   goalRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  goalTitle: { fontSize: 16, fontWeight: '700', color: '#1b1c1d', fontFamily: 'serif' },
-  goalSub: { fontSize: 12, color: '#737784', fontWeight: '500', marginBottom: 12 },
+  goalTitle: { fontSize: 16, fontWeight: '700', color: theme.text, fontFamily: 'serif' },
+  goalSub: { fontSize: 12, color: theme.textTertiary, fontWeight: '500', marginBottom: 12 },
   goalBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 4 },
   goalPct: { fontSize: 13, fontWeight: '800' },
-  tapHint: { color: '#737784', fontSize: 12, fontWeight: '500', marginTop: 10, textAlign: 'center' },
-
-  goalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  pillBadge: { backgroundColor: '#f5f3f4', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4 },
-  percentage: { fontSize: 14, fontWeight: '800', color: '#094cb2' },
-  tapToUpdate: { color: '#737784', fontSize: 12, fontWeight: '500', marginTop: 12, textAlign: 'center' },
+  tapHint: { color: theme.textSecondary, fontSize: 12, fontWeight: '500', marginTop: 10, textAlign: 'center' },
 
   emptyState: {
-    alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 40, backgroundColor: '#ffffff',
-    borderRadius: 8, borderWidth: 1.5,
-    borderColor: '#e3e2e3', borderStyle: 'dashed',
+    alignItems: 'center', justifyContent: 'center', paddingVertical: 40, backgroundColor: theme.card,
+    borderRadius: 8, borderWidth: 1.5, borderColor: theme.border, borderStyle: 'dashed',
   },
-  emptyText: { color: '#434653', marginTop: 12, fontSize: 15, fontWeight: '500' },
-  emptyTitle: { color: '#1b1c1d', fontSize: 16, fontWeight: '700', marginTop: 12, fontFamily: 'serif' },
-  emptySub: { color: '#737784', fontSize: 13, marginTop: 4, textAlign: 'center', paddingHorizontal: 20 },
+  emptyTitle: { color: theme.text, fontSize: 16, fontWeight: '700', marginTop: 12, fontFamily: 'serif' },
+  emptySub: { color: theme.textTertiary, fontSize: 13, marginTop: 4, textAlign: 'center', paddingHorizontal: 20 },
 
   modalOverlay: {
-    flex: 1, backgroundColor: 'rgba(27,28,29,0.8)',
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center', alignItems: 'center',
   },
   modalContent: {
-    width: '85%', backgroundColor: '#FAF9FA',
-    borderRadius: 12, padding: 24,
-    borderWidth: 1, borderColor: '#e3e2e3',
+    width: '85%', backgroundColor: theme.card, borderRadius: 12, padding: 24,
+    borderWidth: 1, borderColor: theme.border,
   },
-  modalHeader: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 24,
-  },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: '#1b1c1d', fontFamily: 'serif' },
-  closeBtn: { padding: 6, backgroundColor: '#e3e2e3', borderRadius: 8 },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: theme.text, fontFamily: 'serif' },
+  closeBtn: { padding: 6, backgroundColor: theme.skeletonBackground, borderRadius: 8 },
   input: {
-    backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e3e2e3',
-    borderRadius: 8, padding: 16, fontSize: 16,
-    marginBottom: 16, fontWeight: '500', color: '#1b1c1d',
+    backgroundColor: theme.background, borderWidth: 1, borderColor: theme.border, borderRadius: 8,
+    padding: 16, fontSize: 16, marginBottom: 16, fontWeight: '500', color: theme.text,
   },
   saveBtn: {
-    backgroundColor: '#094cb2', padding: 16,
-    borderRadius: 8, alignItems: 'center', marginTop: 8,
+    backgroundColor: theme.primary, padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 8,
   },
   saveBtnText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
 });
-

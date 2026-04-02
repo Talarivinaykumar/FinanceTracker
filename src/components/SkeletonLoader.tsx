@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, ViewStyle } from 'react-native';
+import { useTheme } from '../theme/colors';
 
 interface Props {
   width: ViewStyle['width'];
@@ -10,6 +11,7 @@ interface Props {
 
 export const SkeletonLoader: React.FC<Props> = ({ width, height, borderRadius = 8, style }) => {
   const opacity = useRef(new Animated.Value(0.3)).current;
+  const theme = useTheme();
 
   useEffect(() => {
     Animated.loop(
@@ -35,7 +37,7 @@ export const SkeletonLoader: React.FC<Props> = ({ width, height, borderRadius = 
           width,
           height,
           borderRadius,
-          backgroundColor: '#E2E8F0', // Slate 200 skeleton base
+          backgroundColor: theme.border, // Default dynamic base
           opacity,
         },
         style,
