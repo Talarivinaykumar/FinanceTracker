@@ -1,92 +1,82 @@
-# Personal Finance Companion Mobile App
+# FinanceTracker (FTA)
 
-A clean, modern, and lightweight mobile application designed to help users track their daily transactions, understand their spending habits, and manage simple financial goals.
+Welcome to **FinanceTracker**, a sleek, offline-first personal finance application built with React Native.
 
-## Overview
+This application allows users to log and monitor their daily expenses, create saving goals, visualize their financial habits via interactive charts, and secure their sensitive data with biometric locks—all wrapped in a premium custom aesthetic.
 
-This application is built using React Native and Redux Toolkit. It avoids unnecessary complexity (not a full banking app) and focuses heavily on UI/UX with a clean, smooth, and highly responsive user experience. 
+---
 
-It tracks all your finances locally on-device, meaning no internet connection is required for day-to-day transaction recording.
+## 🌟 Key Features
 
-### Key Features
-1. **Home Dashboard:**
-   - Displays real-time Current Balance, Total Income, and Total Expense with a clean aesthetic.
-   - Summarizes your most recent transactions instantly.
-2. **Transaction Management:**
-   - Add Income and Expenses effortlessly via a bottom-sheet styled modal.
-   - Create custom categories with custom emojis straight from the Add Transaction screen!.
-   - Scrollable, neat flat list reviewing all historical transactions.
-3. **Insights Screen:**
-   - Features a dynamic **Pie Chart** separating your expenses by categories.
-   - Highlights your highest spending category immediately.
-4. **Savings Goals:**
-   - Ability to declare a Savings Goal and a target amount.
-   - Beautiful custom progress bars track your completion towards your target.
+* **Offline-First Architecture:** Logs and histories are cached instantaneously giving a lightning-fast experience without relying on API latencies. 
+* **Biometric Lockout:** Integrated FaceID/TouchID functionality using `react-native-biometrics` to keep unauthorized eyes off your cashflow.
+* **Smart Notifications:** Dynamic, staggering local notifications to alert you to budget breakers or successful milestone hits, complete with swipe-to-clear gesture support.
+* **Fluid Layout Animations:** Built primarily with native layout tools for high frame-rate screen transitions and list modifications.
+* **Premium Custom Theming:** Utilizes an elegant, bespoke Dark Mode / Light Mode capability rather than relying on bloated UI frameworks.
 
-## Tech Stack
-- **Framework:** React Native
-- **State Management:** Redux Toolkit (`@reduxjs/toolkit` and `react-redux`)
-- **Persistence:** `@react-native-async-storage/async-storage` wrapped with `redux-persist` to maintain data across reboots.
-- **Navigation:** `@react-navigation/native` and `@react-navigation/bottom-tabs`
-- **Charts:** `react-native-chart-kit` and `react-native-svg`
-- **Icons:** `lucide-react-native`
+---
 
-## Setup Steps
+## 🛠️ Technology Stack
+
+- **Framework:** React Native CLI (Bare Workflow) + TypeScript
+- **State Management:** Redux Toolkit (RTK) + React-Redux
+- **Data Persistence:** AsyncStorage + Redux-Persist
+- **Navigation:** React Navigation (Native Stack & Bottom Tabs)
+- **Icons & Graphics:** `lucide-react-native` and `react-native-svg`
+- **Charts:** `react-native-chart-kit`
+
+---
+
+## ⚙️ Setup Instructions
 
 ### Prerequisites
-1. Node.js (>= 18 recommended)
-2. React Native CLI environment setup (Android Studio / Xcode)
-3. NPM or Yarn
+Before you begin, ensure you have the following installed:
+- **Node.js** (v18+ recommended)
+- **Java Development Kit (JDK)** 17+
+- **Android Studio** (for Android) or **Xcode** (for iOS, Mac only)
+- **CocoaPods** (for iOS dependencies)
 
 ### Installation
-1. Navigate to the project directory:
-   ```bash
-   cd FinanceTracker/FTA
-   ```
-2. Install the exact dependencies required:
+
+1. **Install dependencies:**
+   Navigate into your project folder and run:
    ```bash
    npm install
    ```
-3. *(iOS Only)* Install CocoaPods
+
+2. **iOS Native Setup (Mac Only):**
    ```bash
-   cd ios && pod install && cd ..
+   cd ios
+   pod install
+   cd ..
    ```
 
-### Running the App
-- **Android:**
-  ```bash
-  npx react-native run-android
-  ```
-- **iOS:**
-  ```bash
-  npx react-native run-ios
-  ```
+3. **Running the App:**
+   - **For Android:**
+     ```bash
+     npm run android
+     ```
+   - **For iOS:**
+     ```bash
+     npm run ios
+     ```
 
-## Assumptions
-- **Local Persistence Only:** The requirement explicitly pointed towards AsyncStorage, so the app assumes device-centric data usage. Syncing across devices is not implemented.
-- **Base Currency:** All currencies are formatted implicitly in USD ($) for simplicity. This can be localized easily if required via i18n libraries.
-- **React Native CLI over Expo:** The provided user directory `FTA` already featured a standard React Native CLI bundle, so execution targeted a non-Expo flow while respecting all logic and UI requirements requested. (Note: The packages chosen are 100% Expo-compatible if transferred to an Expo Managed module.)
+---
 
-## Folder Structure
+## 🚫 Known Limitations & Constraints
 
-```
-FTA/
-├── src/
-│   ├── components/
-│   │   ├── AddTransactionModal.tsx  # Modal form for inputting transactions
-│   │   ├── ProgressBar.tsx          # Custom UI element for tracking goals
-│   │   └── TransactionCard.tsx      # A reusable card displaying an item
-│   ├── navigation/
-│   │   └── AppNavigator.tsx         # Bottom tab layout and routing
-│   ├── screens/
-│   │   ├── GoalsScreen.tsx          # Maps tracking components
-│   │   ├── HomeScreen.tsx           # Dashboard summaries
-│   │   ├── InsightsScreen.tsx       # Embedded PieChart
-│   │   └── TransactionsScreen.tsx   # Detailed feed of history
-│   └── store/
-│       ├── financeSlice.ts          # Redux slice governing financial rules
-│       ├── hooks.ts                 # Strongly-typed Redux accessors
-│       └── store.ts                 # Redux engine and persistence gateway
-├── App.tsx                          # Base providers and entry
-└── package.json
-```
+* **Storage Constraints:** Built on top of `AsyncStorage`. Massive querying (10,000+ entries) may encounter frame drops, as it isn't an indexable database.
+* **No Cloud Sync:** Missing a remote sync feature (e.g. Supabase, Firebase). App termination or cache clearing permanently wipes data unless manually exported.
+* **Headless Background Processes:** Notifications presently hinge upon foreground trigger triggers. True "scheduled while killed" actions demand deeper Headless JS configuration.
+
+---
+
+## 🚀 Roadmap / Areas for Improvement
+
+1. **WatermelonDB/SQLite Migration:** To securely encrypt data underneath the OS layer and introduce rapid multi-join querying.
+2. **Push Capabilities & Cloud Sync:** Moving persistence arrays up into a cloud graph like Supabase so users can migrate devices.
+3. **Receipt Parsing:** Integrating `react-native-vision-camera` to scan receipts and log complex data lines automatically.
+4. **Enhanced Analytics:** Weekly granularity vs Monthly granularity breakdown toggles.
+
+---
+*Developed with focus on performance, security, and dynamic UI design.*
